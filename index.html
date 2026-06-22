@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0B0E14">
+<title>MecanoApp — Entrena tu velocidad de escritura</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body class="theme-dark">
+
+<div id="app">
+
+  <header class="status-bar">
+    <div class="brand">
+      <svg viewBox="0 0 24 24" class="brand-icon" aria-hidden="true"><path d="M3 6h18v12H3z M6 10h2 M10 10h2 M14 10h2 M18 10h0 M6 14h10" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span>Mecano<b>App</b></span>
+    </div>
+    <div class="status-chips">
+      <button class="chip streak-chip" id="streakChip" title="Racha diaria">🔥 <span id="streakValue">0</span></button>
+      <button class="chip level-chip" id="levelChip" title="Nivel y experiencia">Nv. <span id="levelValue">1</span></button>
+    </div>
+  </header>
+
+  <main id="screens">
+
+    <!-- ============ INICIO / CONFIGURAR PRÁCTICA ============ -->
+    <section id="screen-home" class="screen active" data-screen="home">
+
+      <div class="card insight-card" id="focusCard" hidden>
+        <div class="card-label">Práctica enfocada</div>
+        <p id="focusMessage" class="insight-text"></p>
+        <button class="btn btn-primary" id="startFocusBtn">Practicar mis puntos débiles</button>
+      </div>
+
+      <div class="card daily-card" id="dailyCard">
+        <div class="card-label">Desafío de hoy</div>
+        <p id="dailyDesc" class="daily-desc">Cargando…</p>
+        <div class="bar-track"><div class="bar-fill" id="dailyBar"></div></div>
+        <div class="daily-footer">
+          <span id="dailyXp">+0 XP</span>
+          <span id="dailyStatus"></span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-label">Tipo de ejercicio</div>
+        <div class="chip-group" id="typeChips">
+          <button class="chip selectable active" data-type="common">Palabras comunes</button>
+          <button class="chip selectable" data-type="phrases">Frases completas</button>
+          <button class="chip selectable" data-type="numbers">Números</button>
+          <button class="chip selectable" data-type="symbols">Símbolos</button>
+          <button class="chip selectable" data-type="hard">Combinaciones difíciles</button>
+          <button class="chip selectable" data-type="custom">Personalizadas</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-label">Duración</div>
+        <div class="chip-group" id="durationChips">
+          <button class="chip selectable" data-duration="15">15 s</button>
+          <button class="chip selectable active" data-duration="30">30 s</button>
+          <button class="chip selectable" data-duration="60">60 s</button>
+          <button class="chip selectable" data-duration="120">120 s</button>
+          <button class="chip selectable" data-duration="free">Modo libre</button>
+        </div>
+        <div class="chip-group" id="lengthChips" hidden>
+          <button class="chip selectable active" data-length="short">Texto corto</button>
+          <button class="chip selectable" data-length="long">Texto largo</button>
+        </div>
+      </div>
+
+      <button class="btn btn-primary btn-big" id="startBtn">Comenzar práctica</button>
+    </section>
+
+    <!-- ============ PANTALLA DE ESCRITURA ============ -->
+    <section id="screen-typing" class="screen" data-screen="typing">
+      <div class="readout-strip">
+        <div class="readout"><span class="readout-value" id="statWpm">0</span><span class="readout-label">PPM</span></div>
+        <div class="readout"><span class="readout-value" id="statAcc">100</span><span class="readout-label">% precisión</span></div>
+        <div class="readout"><span class="readout-value" id="statTime">0</span><span class="readout-label">seg</span></div>
+      </div>
+      <div class="bar-track thin"><div class="bar-fill" id="testProgressBar"></div></div>
+
+      <div class="text-display" id="textDisplay" aria-live="off"></div>
+
+      <input id="typingInput" class="typing-input" type="text" autocomplete="off" autocorrect="off"
+             autocapitalize="off" spellcheck="false" inputmode="text"
+             placeholder="Toca aquí y empieza a escribir…" aria-label="Área de escritura">
+
+      <div class="typing-actions">
+        <button class="btn btn-ghost" id="cancelTestBtn">Cancelar</button>
+        <button class="btn btn-secondary" id="finishFreeBtn" hidden>Terminar</button>
+      </div>
+    </section>
+
+    <!-- ============ RESULTADOS DE LA SESIÓN ============ -->
+    <section id="screen-results" class="screen" data-screen="results">
+      <div class="results-grid">
+        <div class="stat-block"><span class="stat-value" id="resWpm">0</span><span class="stat-label">PPM</span></div>
+        <div class="stat-block"><span class="stat-value" id="resAcc">0%</span><span class="stat-label">Precisión</span></div>
+        <div class="stat-block"><span class="stat-value" id="resTime">0s</span><span class="stat-label">Duración</span></div>
+        <div class="stat-block"><span class="stat-value" id="resChars">0</span><span class="stat-label">Caracteres</span></div>
+      </div>
+      <p class="compare-text" id="compareText"></p>
+
+      <div class="card xp-card">
+        <div class="card-label">Experiencia ganada</div>
+        <div class="xp-gain" id="xpGain">+0 XP</div>
+        <div class="bar-track"><div class="bar-fill xp-fill" id="xpBar"></div></div>
+        <p class="xp-sub" id="xpSub"></p>
+      </div>
+
+      <div class="card" id="resultInsightCard" hidden>
+        <div class="card-label">De esta sesión</div>
+        <p id="resultInsightText" class="insight-text"></p>
+      </div>
+
+      <div id="unlockedList" class="unlocked-list"></div>
+
+      <div class="results-actions">
+        <button class="btn btn-secondary" id="repeatBtn">Repetir</button>
+        <button class="btn btn-primary" id="backHomeBtn">Practicar otra vez</button>
+      </div>
+    </section>
+
+    <!-- ============ ESTADÍSTICAS / HISTORIAL ============ -->
+    <section id="screen-stats" class="screen" data-screen="stats">
+      <div class="stats-summary" id="statsSummary"></div>
+
+      <div class="card">
+        <div class="card-label">Evolución de PPM</div>
+        <canvas id="chartWpm" class="chart-canvas"></canvas>
+      </div>
+      <div class="card">
+        <div class="card-label">Evolución de precisión</div>
+        <canvas id="chartAcc" class="chart-canvas"></canvas>
+      </div>
+
+      <div class="card">
+        <div class="card-label">Historial de sesiones</div>
+        <div id="historyList" class="history-list"></div>
+      </div>
+    </section>
+
+    <!-- ============ MAPA DE ERRORES ============ -->
+    <section id="screen-errormap" class="screen" data-screen="errormap">
+      <div class="card">
+        <p id="mapInsightText" class="insight-text"></p>
+        <button class="btn btn-primary" id="generateFocusBtn">Generar práctica enfocada</button>
+      </div>
+
+      <div class="card">
+        <div class="card-label">Mapa de calor del teclado</div>
+        <div class="keyboard-map" id="keyboardMap"></div>
+        <div class="heat-legend">
+          <span>Dominado</span>
+          <div class="heat-gradient"></div>
+          <span>Problemático</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-label">Teclas más problemáticas</div>
+        <div id="problemCharsList" class="pill-list"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-label">Palabras problemáticas</div>
+        <div id="problemWordsList" class="pill-list"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-label">Precisión por categoría</div>
+        <div id="categoryBars" class="category-bars"></div>
+      </div>
+    </section>
+
+    <!-- ============ LOGROS Y GAMIFICACIÓN ============ -->
+    <section id="screen-achievements" class="screen" data-screen="achievements">
+      <div class="card level-card">
+        <div class="level-row">
+          <span class="level-big">Nivel <span id="bigLevel">1</span></span>
+          <span class="streak-big">🔥 <span id="bigStreak">0</span> días</span>
+        </div>
+        <div class="bar-track"><div class="bar-fill" id="levelBar"></div></div>
+        <p class="xp-sub" id="levelSub"></p>
+      </div>
+
+      <div class="card">
+        <div class="card-label">Misiones de la semana</div>
+        <div id="missionsList" class="missions-list"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-label">Logros</div>
+        <div id="achievementsGrid" class="achievements-grid"></div>
+      </div>
+    </section>
+
+    <!-- ============ AJUSTES ============ -->
+    <section id="screen-settings" class="screen" data-screen="settings">
+      <div class="card">
+        <div class="card-label">Apariencia</div>
+        <div class="settings-row">
+          <span>Modo oscuro</span>
+          <button class="switch" id="themeSwitch" role="switch" aria-checked="true"><span class="switch-knob"></span></button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-label">Palabras personalizadas</div>
+        <p class="hint-text">Una palabra o frase por línea. Se usarán en el ejercicio "Personalizadas".</p>
+        <textarea id="customWordsArea" class="custom-words-area" rows="5" placeholder="Ej:
+Aeondris
+Ashes of the Reborn
+luismartinezprog"></textarea>
+        <button class="btn btn-secondary" id="saveCustomWordsBtn">Guardar lista</button>
+        <p class="hint-text" id="customWordsCount"></p>
+      </div>
+
+      <div class="card">
+        <div class="card-label">Datos</div>
+        <button class="btn btn-danger" id="resetDataBtn">Reiniciar todo mi progreso</button>
+      </div>
+
+      <p class="about-text">MecanoApp · entrenamiento de mecanografía táctil · v1.0</p>
+    </section>
+
+  </main>
+
+  <nav class="bottom-nav">
+    <button class="nav-btn active" data-screen="home">
+      <svg viewBox="0 0 24 24"><path d="M3 7h18v10H3z M6.5 11h1 M10 11h1 M13.5 11h1 M17 11h1 M6.5 14.5h11" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span>Practicar</span>
+    </button>
+    <button class="nav-btn" data-screen="stats">
+      <svg viewBox="0 0 24 24"><path d="M4 20V10 M10 20V4 M16 20v-7 M20 20V13" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      <span>Estadísticas</span>
+    </button>
+    <button class="nav-btn" data-screen="errormap">
+      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="6" height="6" rx="1" fill="none" stroke="currentColor" stroke-width="1.6"/><rect x="10.5" y="3" width="6" height="6" rx="1" fill="currentColor" opacity=".5" stroke="currentColor" stroke-width="1.6"/><rect x="18" y="3" width="3" height="6" rx="1" fill="none" stroke="currentColor" stroke-width="1.6"/><rect x="3" y="10.5" width="6" height="6" rx="1" fill="none" stroke="currentColor" stroke-width="1.6"/><rect x="10.5" y="10.5" width="10.5" height="6" rx="1" fill="currentColor" opacity=".8" stroke="currentColor" stroke-width="1.6"/></svg>
+      <span>Mapa</span>
+    </button>
+    <button class="nav-btn" data-screen="achievements">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="9" r="5.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M8.5 13.5L7 21l5-2.5 5 2.5-1.5-7.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+      <span>Logros</span>
+    </button>
+    <button class="nav-btn" data-screen="settings">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M12 3v2.5M12 18.5V21M3 12h2.5M18.5 12H21M5.6 5.6l1.8 1.8M16.6 16.6l1.8 1.8M5.6 18.4l1.8-1.8M16.6 7.4l1.8-1.8" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      <span>Ajustes</span>
+    </button>
+  </nav>
+
+</div>
+
+<div id="toastContainer" class="toast-container"></div>
+
+<script type="module" src="js/main.js"></script>
+</body>
+</html>
