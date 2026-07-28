@@ -1,0 +1,50 @@
+// Estado central del juego. TODOS los sistemas leen y escriben a través de este objeto.
+// Regla 3: este objeto SOLO CRECE. Los campos existentes nunca cambian de nombre/tipo/ubicación.
+
+const game = {
+  // ---- state: todo lo serializable, se guarda en localStorage (a partir del Hito 7) ----
+  state: {
+    player: {
+      position: { x: 0, y: 0, z: 0 },
+      rotation: 0,
+      level: 1,
+      xp: 0,
+      xpToNextLevel: 100,
+      stats: { hp: 100, maxHp: 100, attack: 10, defense: 5, speed: 5, stamina: 100, maxStamina: 100 },
+      equipped: { weapon: null, armor: null },
+      weaponProficiency: { sword: 0, dagger: 0, axe: 0, spear: 0 },
+      activeBuffs: [],
+      currency: 0,
+      fatigueUntil: null,
+    },
+    inventory: [],
+    currentZone: 'zone_1',
+    unlockedZones: ['zone_1'],
+    enemies: [],
+    cooldowns: {},
+    quests: { active: [], completed: [] },
+    achievements: { unlocked: [] },
+    playerStats: { enemiesKilled: 0, deaths: 0, itemsCrafted: 0, timePlayedSeconds: 0, highestZoneReached: 1, totalDamageDealt: 0 },
+    bestiary: {},
+    settings: { difficulty: 'normal', soundOn: true, joystickSensitivity: 1.0 },
+  },
+
+  // ---- refs: objetos vivos de Three.js y datos derivados de la zona actual. NUNCA se guardan. ----
+  refs: {
+    scene: null,
+    camera: null,
+    renderer: null,
+    clock: null,
+    player: null,
+    currentObstacles: [], // [{x, z, radius}], reconstruido en cada buildZone()
+    zoneBounds: null,     // límite del terreno jugable, lo fija buildZone()
+  },
+
+  // ---- registro extensible de sistemas (ver main.js) ----
+  // Cada sistema se suscribe aquí en lugar de que main.js lo llame a mano.
+  // Así main.js nunca necesita editarse al agregar un sistema nuevo (Regla 2 y 4).
+  _updateFns: [],
+  registerSystem(fn) {
+    this._updateFns.push(fn);
+  },
+};
