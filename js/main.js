@@ -41,7 +41,7 @@ function startGame() {
   initThree();
   buildZone(game.state.currentZone); // world.js
   initPlayer();                       // player.js
-
+  initUI();
   animate();
 }
 
