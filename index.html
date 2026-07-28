@@ -19,6 +19,25 @@
   </div>
 
   <div id="menu-overlay">
+    <!-- HUD permanente (Hito 2) -->
+  <div id="hud">
+    <div id="hud-level">Nv. 1</div>
+    <div class="hud-bar-row">
+      <div class="hud-bar-label">HP</div>
+      <div class="hud-bar-bg"><div id="hp-bar-fill" class="hud-bar-fill hp-fill"></div></div>
+    </div>
+    <div class="hud-bar-row">
+      <div class="hud-bar-label">XP</div>
+      <div class="hud-bar-bg"><div id="xp-bar-fill" class="hud-bar-fill xp-fill"></div></div>
+    </div>
+    <div class="hud-bar-row">
+      <div class="hud-bar-label">STA</div>
+      <div class="hud-bar-bg"><div id="stamina-bar-fill" class="hud-bar-fill stamina-fill"></div></div>
+    </div>
+  </div>
+
+  <div id="notification-container"></div>
+
     <h1 id="menu-title">SAO-Style Action RPG</h1>
     <button id="btn-new-game">Nueva Partida</button>
     <!-- Botón "Continuar", Ajustes y dificultad se agregan en el Hito 7 -->
@@ -30,5 +49,7 @@
   <script src="js/main.js"></script>
   <script src="js/world.js"></script>
   <script src="js/player.js"></script>
+  <script src="js/leveling.js"></script>
+  <script src="js/ui.js"></script>
 </body>
 </html>
