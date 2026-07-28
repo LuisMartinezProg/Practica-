@@ -124,7 +124,9 @@ function updatePlayer(delta) {
   const mesh = game.refs.player;
   const cam = game.refs.camera;
   if (!mesh || !cam) return;
-
+// NUEVO (Hito 2): regeneración pasiva de stamina — el Hito 3 la empieza a consumir
+  const stats = game.state.player.stats;
+  stats.stamina = Math.min(stats.maxStamina, stats.stamina + 10 * delta);
   const input = _joystick.input;
   const moving = Math.abs(input.x) > 0.05 || Math.abs(input.y) > 0.05;
 
