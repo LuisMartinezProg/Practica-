@@ -106,3 +106,75 @@ html, body {
 #menu-overlay button:active {
   background: #2c5680;
 }
+/* ---- HUD permanente ---- */
+#hud {
+  position: fixed;
+  top: 16px;
+  left: 16px;
+  z-index: 10;
+  width: 200px;
+  padding: 10px 12px;
+  background: rgba(0, 0, 0, 0.35);
+  border-radius: 10px;
+  color: #fff;
+  font-size: 0.8rem;
+  pointer-events: none;
+}
+
+#hud-level { font-weight: 700; margin-bottom: 6px; }
+
+.hud-bar-row { display: flex; align-items: center; gap: 6px; margin-bottom: 4px; }
+.hud-bar-label { width: 28px; font-size: 0.7rem; opacity: 0.85; }
+.hud-bar-bg { flex: 1; height: 10px; background: rgba(255,255,255,0.15); border-radius: 6px; overflow: hidden; }
+.hud-bar-fill { height: 100%; width: 100%; transition: width 0.2s ease-out; }
+
+.hp-fill { background: #e6473c; }
+.xp-fill { background: #f2c94c; }
+.stamina-fill { background: #4cd0e0; }
+
+/* ---- Notificaciones ---- */
+#notification-container {
+  position: fixed;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  pointer-events: none;
+}
+
+.notification {
+  background: rgba(20, 20, 20, 0.85);
+  color: #fff;
+  padding: 8px 18px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.notification.visible { opacity: 1; transform: translateY(0); }
+
+.notification-levelup {
+  background: rgba(242, 201, 76, 0.95);
+  color: #222;
+  font-weight: 700;
+}
+
+/* ---- Botón temporal de testeo ---- */
+#debug-xp-btn {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 10;
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: 1px dashed rgba(255, 255, 255, 0.6);
+  background: rgba(0, 0, 0, 0.35);
+  color: #fff;
+  font-size: 0.75rem;
+}
