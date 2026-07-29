@@ -13,7 +13,7 @@ function initThree() {
   game.refs.renderer = new THREE.WebGLRenderer({ antialias: true });
   game.refs.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   game.refs.renderer.setSize(window.innerWidth, window.innerHeight);
-  game.refs.renderer.shadowMap.enabled = false; // mejora futura opcional
+  game.refs.renderer.shadowMap.enabled = false;
   document.getElementById('game-canvas-container').appendChild(game.refs.renderer.domElement);
 
   const ambient = new THREE.AmbientLight(0xffffff, 0.6);
@@ -33,17 +33,17 @@ function onWindowResize() {
   game.refs.renderer.setSize(window.innerWidth, window.innerHeight);
 }
 
-// Llamada por menu.js al elegir "Nueva Partida" (y por "Continuar" a partir del Hito 7)
 function startGame() {
   if (_gameInitialized) return;
   _gameInitialized = true;
 
   initThree();
   buildZone(game.state.currentZone); // world.js
-  initPlayer();     
-  initEnemies(); 
-  initCombat();    //
-  initUI();
+  initPlayer();                       // player.js
+  initEnemies();                      // enemies.js
+  initCombat();                       // combat.js
+  initUI();                           // ui.js
+
   animate();
 }
 
