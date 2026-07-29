@@ -20,6 +20,7 @@
     <div id="block-btn" class="touch-btn">Bloq.</div>
     <div id="attack-btn" class="touch-btn">Atacar</div>
     <div id="skill-buttons"></div>
+    <div id="inventory-toggle-btn" class="touch-btn">🎒</div>
   </div>
 
   <div id="hud">
@@ -42,10 +43,37 @@
   <div id="notification-container"></div>
   <div id="damage-number-container"></div>
 
-  <!-- Controles de prueba temporales — se retiran en el Hito 4 con equipo real -->
-  <div id="debug-panel">
-    <button id="debug-cycle-category-btn">Cambiar arma (test)</button>
-    <button id="debug-add-proficiency-btn">+100 Maestría (test)</button>
+  <div id="inventory-overlay" class="hidden">
+    <div id="inventory-panel">
+      <div id="inventory-header">
+        <span id="inventory-title">Inventario</span>
+        <span id="inventory-count">0/30</span>
+        <span id="inventory-close-btn">✕</span>
+      </div>
+
+      <div id="equipped-section">
+        <div class="equipped-slot" id="equipped-weapon-slot">
+          <div class="equipped-slot-label">Arma</div>
+          <div class="equipped-slot-content"></div>
+        </div>
+        <div class="equipped-slot" id="equipped-armor-slot">
+          <div class="equipped-slot-label">Armadura</div>
+          <div class="equipped-slot-content"></div>
+        </div>
+      </div>
+
+      <div id="inventory-grid"></div>
+    </div>
+  </div>
+
+  <div id="item-action-menu" class="hidden">
+    <div id="item-action-menu-card">
+      <div id="item-action-name"></div>
+      <button id="item-action-equip">Equipar</button>
+      <button id="item-action-use">Usar</button>
+      <button id="item-action-drop">Tirar</button>
+      <button id="item-action-cancel">Cancelar</button>
+    </div>
   </div>
 
   <div id="menu-overlay">
@@ -62,6 +90,7 @@
   <script src="js/leveling.js"></script>
   <script src="js/combat.js"></script>
   <script src="js/enemies.js"></script>
+  <script src="js/inventory.js"></script>
   <script src="js/ui.js"></script>
 </body>
 </html>
