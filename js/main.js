@@ -42,6 +42,7 @@ function startGame() {
   initPlayer();                       // player.js
   initEnemies();                      // enemies.js
   initCombat();                       // combat.js
+  initInventory();                    // inventory.js
   initUI();                           // ui.js
 
   animate();
