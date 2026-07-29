@@ -7,6 +7,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   btnNewGame.addEventListener('click', () => {
     menuOverlay.classList.add('hidden');
-    startGame(); // definido en main.js
+    startGame();
   });
 });
