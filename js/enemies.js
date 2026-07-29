@@ -1,6 +1,4 @@
 // IA de enemigos, spawns y resistencias. Hito 3: solo "Lobo salvaje" (Piso 1).
-// Pisos 2-8 + mini-jefe + jefe final se agregan como entradas nuevas en el Hito 6,
-// junto con sus zonas — sus stats están explícitamente sin fijar hasta poder probarlos (README 4.7).
 
 const ENEMY_DATABASE = {
   wolf: {
@@ -79,7 +77,6 @@ function removeEnemy(enemy) {
   game.refs.currentEnemies = game.refs.currentEnemies.filter((e) => e.id !== enemy.id);
   _syncEnemyStateMirror();
 
-  // Reaparición simple en el mismo punto tras 20s (mejora opcional del README 4.7)
   setTimeout(() => _spawnEnemy(enemy.type, enemy.spawnPoint.x, enemy.spawnPoint.z), 20000);
 }
 
@@ -123,7 +120,7 @@ function _updateEnemyAI(enemy, delta) {
         enemy.aiState = 'chasing';
       } else if (now - enemy.lastAttackTime >= enemy.attackCooldown) {
         enemy.lastAttackTime = now;
-        enemyAttackPlayer(enemy); // combat.js
+        enemyAttackPlayer(enemy);
       }
       break;
   }
