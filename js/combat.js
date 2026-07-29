@@ -1,5 +1,4 @@
 // Combate: ataque básico, categorías de arma, maestría, sword skills, daño recibido.
-// Sin ITEM_DATABASE real todavía (Hito 4): categoría por defecto 'slashing' + selector de prueba.
 
 const COMBAT_CONFIG = {
   basicAttackRange: 2.2,
@@ -60,26 +59,20 @@ const SWORD_SKILL_DATABASE = {
 
 const PRE_MOTION_DURATION = 0.4;
 
-let _debugWeaponCategoryOverride = null;
 const _comboChainState = {};
 
 function _getEquippedWeaponCategory() {
-  if (_debugWeaponCategoryOverride) return _debugWeaponCategoryOverride;
   const weapon = game.state.player.equipped.weapon;
-  if (weapon && typeof ITEM_DATABASE !== 'undefined') {
-    const item = ITEM_DATABASE[weapon.itemId];
-    if (item && item.damageCategory) return item.damageCategory;
-  }
-  return 'slashing';
+  if (!weapon) return 'blunt'; // sin arma: puños
+  const item = ITEM_DATABASE[weapon.itemId];
+  return item && item.damageCategory ? item.damageCategory : 'blunt';
 }
 
 function _canCurrentWeaponBlock() {
   const weapon = game.state.player.equipped.weapon;
-  if (weapon && typeof ITEM_DATABASE !== 'undefined') {
-    const item = ITEM_DATABASE[weapon.itemId];
-    if (item) return !!item.canBlock;
-  }
-  return true;
+  if (!weapon) return false;
+  const item = ITEM_DATABASE[weapon.itemId];
+  return item ? !!item.canBlock : false;
 }
 
 function _gainWeaponProficiency(category) {
@@ -159,6 +152,7 @@ function _dealDamageToEnemy(enemy, baseAttack, category) {
 
   enemy.stats.hp -= damage;
   game.state.playerStats.totalDamageDealt += damage;
+  damageEquippedWeapon(); // desgaste del arma equipada
 
   showDamageNumber(enemy.mesh.position, damage);
 
@@ -171,9 +165,26 @@ function _killEnemy(enemy) {
   game.state.player.currency += enemy.currencyReward;
   game.state.playerStats.enemiesKilled += 1;
 
+  _rollEnemyDropTable(enemy);
+
   game.emit('enemyKilled', { type: enemy.type, xpReward: enemy.xpReward, currencyReward: enemy.currencyReward });
 
   removeEnemy(enemy);
+}
+
+function _rollEnemyDropTable(enemy) {
+  const data = ENEMY_DATABASE[enemy.type];
+  if (!data || !data.dropTable) return;
+
+  data.dropTable.forEach((drop) => {
+    if (Math.random() > drop.chance) return;
+    const qty = Math.floor(Math.random() * (drop.maxQty - drop.minQty + 1)) + drop.minQty;
+    const result = addItem(drop.itemId, qty);
+    if (result.added > 0) {
+      const itemData = ITEM_DATABASE[drop.itemId];
+      showNotification(`+${result.added} ${itemData.name}`, 'loot');
+    }
+  });
 }
 
 function _applySkillDamage(enemy, skill, multiplierOverride) {
@@ -339,6 +350,7 @@ function enemyAttackPlayer(enemy) {
 function applyDamageToPlayer(amount) {
   const stats = game.state.player.stats;
   stats.hp = Math.max(0, stats.hp - Math.round(amount));
+  damageEquippedArmor(); // desgaste de la armadura equipada
   showNotification(`-${Math.round(amount)} HP`, 'damage');
   if (stats.hp <= 0) handlePlayerDeath();
 }
@@ -356,28 +368,6 @@ function _setupCombatButtons() {
   blockBtn.addEventListener('touchstart', (e) => { e.preventDefault(); startBlock(); }, { passive: false });
   blockBtn.addEventListener('touchend', (e) => { e.preventDefault(); endBlock(); }, { passive: false });
   blockBtn.addEventListener('touchcancel', (e) => { e.preventDefault(); endBlock(); }, { passive: false });
-
-  const cycleCatBtn = document.getElementById('debug-cycle-category-btn');
-  if (cycleCatBtn) cycleCatBtn.addEventListener('click', debugCycleWeaponCategory);
-
-  const addProfBtn = document.getElementById('debug-add-proficiency-btn');
-  if (addProfBtn) addProfBtn.addEventListener('click', () => debugAddProficiency(100));
-}
-
-function debugCycleWeaponCategory() {
-  const categories = ['slashing', 'piercing', 'blunt', 'thrust'];
-  const current = _debugWeaponCategoryOverride || 'slashing';
-  const next = categories[(categories.indexOf(current) + 1) % categories.length];
-  _debugWeaponCategoryOverride = next;
-  checkProficiencyUnlocks(next, true);
-  showNotification(`[TEST] Categoría de arma: ${next}`, 'info');
-}
-
-function debugAddProficiency(amount) {
-  const category = _getEquippedWeaponCategory();
-  const key = DAMAGE_CATEGORY_TO_PROFICIENCY_KEY[category];
-  game.state.player.weaponProficiency[key] += amount;
-  checkProficiencyUnlocks(category);
 }
 
 function initCombat() {
