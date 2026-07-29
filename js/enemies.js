@@ -1,4 +1,4 @@
-// IA de enemigos, spawns y resistencias. Hito 3: solo "Lobo salvaje" (Piso 1).
+// IA de enemigos, spawns y resistencias. Hito 3-4: solo "Lobo salvaje" (Piso 1).
 
 const ENEMY_DATABASE = {
   wolf: {
@@ -12,6 +12,12 @@ const ENEMY_DATABASE = {
     xpReward: 15,
     currencyReward: 3,
     color: 0x555555,
+    dropTable: [
+      { itemId: 'material_wolf_pelt', chance: 0.6, minQty: 1, maxQty: 2 },
+      { itemId: 'material_wolf_fang', chance: 0.35, minQty: 1, maxQty: 1 },
+      { itemId: 'sword_tempered', chance: 0.03, minQty: 1, maxQty: 1 },
+      { itemId: 'armor_iron', chance: 0.03, minQty: 1, maxQty: 1 },
+    ],
   },
 };
 
@@ -127,6 +133,8 @@ function _updateEnemyAI(enemy, delta) {
 }
 
 function updateEnemies(delta) {
+  if (game.refs.uiState.modalOpen) return; // pausa si hay un menú abierto
+
   game.refs.currentEnemies.forEach((enemy) => _updateEnemyAI(enemy, delta));
 }
 
