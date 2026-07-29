@@ -194,7 +194,7 @@ function handlePlayerDeath() {
   player.xp = Math.floor(player.xp * 0.9);
   player.fatigueUntil = Date.now() + 60000;
 
-  player.stats.hp = player.stats.maxHp;
+  player.stats.hp = getEffectiveStats().maxHp; // respeta bonos de equipo al reaparecer
   const mesh = game.refs.player;
   mesh.position.set(0, 0, 0);
   player.position.x = 0;
@@ -209,6 +209,8 @@ function handlePlayerDeath() {
 }
 
 function updatePlayer(delta) {
+  if (game.refs.uiState.modalOpen) return; // pausa si hay un menú abierto (inventario, etc.)
+
   const mesh = game.refs.player;
   const cam = game.refs.camera;
   if (!mesh || !cam) return;
@@ -250,7 +252,7 @@ function updatePlayer(delta) {
         .addScaledVector(camRight, input.x);
       if (moveDir.lengthSq() > 1) moveDir.normalize();
 
-      const dist = stats.speed * delta;
+      const dist = getEffectiveStats().speed * delta; // incluye bonos de equipo (ej. daga +speed)
       const nx = _clampBounds(mesh.position.x + moveDir.x * dist);
       const nz = _clampBounds(mesh.position.z + moveDir.z * dist);
 
