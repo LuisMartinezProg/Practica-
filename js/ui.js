@@ -17,8 +17,9 @@ function initUI() {
 function updateHUD() {
   const player = game.state.player;
   const stats = player.stats;
+  const effective = getEffectiveStats();
 
-  _hp.style.width = `${Math.max(0, (stats.hp / stats.maxHp) * 100)}%`;
+  _hp.style.width = `${Math.max(0, (stats.hp / effective.maxHp) * 100)}%`;
   _xp.style.width = `${Math.max(0, (player.xp / player.xpToNextLevel) * 100)}%`;
   _stamina.style.width = `${Math.max(0, (stats.stamina / stats.maxStamina) * 100)}%`;
   _level.textContent = `Nv. ${player.level}`;
