@@ -132,7 +132,6 @@ function playSwingAnimation() {
   _attackAnimUntil = performance.now() / 1000 + ATTACK_ANIM_DURATION;
 }
 
-// ---- Esquiva ----
 function performDodge() {
   const pc = game.refs.playerCombat;
   const now = performance.now() / 1000;
@@ -161,7 +160,7 @@ function performDodge() {
       .normalize();
     dirX = dir.x; dirZ = dir.z;
   } else {
-    dirX = Math.sin(mesh.rotation.y); // hacia atrás respecto a la orientación actual
+    dirX = Math.sin(mesh.rotation.y);
     dirZ = Math.cos(mesh.rotation.y);
   }
 
@@ -171,11 +170,10 @@ function performDodge() {
   pc.dodgeStartPos = { x: mesh.position.x, z: mesh.position.z };
   pc.dodgeEndPos = _canOccupy(targetX, targetZ)
     ? { x: targetX, z: targetZ }
-    : { x: mesh.position.x, z: mesh.position.z }; // choca con algo: conserva las i-frames igual
+    : { x: mesh.position.x, z: mesh.position.z };
   pc.dodgeActiveUntil = now + DODGE_CONFIG.dashDuration;
 }
 
-// ---- Bloqueo ----
 function startBlock() {
   const pc = game.refs.playerCombat;
   const now = performance.now() / 1000;
@@ -189,17 +187,16 @@ function endBlock() {
   game.refs.playerCombat.isBlocking = false;
 }
 
-// ---- Muerte ----
 function handlePlayerDeath() {
   const player = game.state.player;
 
   game.state.playerStats.deaths += 1;
-  player.xp = Math.floor(player.xp * 0.9); // -10% de XP parcial, nunca baja de nivel
+  player.xp = Math.floor(player.xp * 0.9);
   player.fatigueUntil = Date.now() + 60000;
 
   player.stats.hp = player.stats.maxHp;
   const mesh = game.refs.player;
-  mesh.position.set(0, 0, 0); // entrada de zone_1; el Hito 6 define entry points reales
+  mesh.position.set(0, 0, 0);
   player.position.x = 0;
   player.position.z = 0;
 
