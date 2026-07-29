@@ -17,23 +17,23 @@ function gainXp(amount) {
     player.xpToNextLevel = Math.round(100 * Math.pow(player.level, 1.5));
 
     _recalculateStatsForLevel(player.level);
-    player.stats.hp = player.stats.maxHp;
+    player.stats.hp = getEffectiveStats().maxHp; // incluye bono de equipo, no solo el máximo base
 
     showLevelUpNotification(player.level);
   }
 }
 
-// Suma stats base + bonos de equipo + buffs activos + Fatiga.
-// combat.js SIEMPRE debe leer stats a través de esta función, nunca player.stats directo.
+// Suma stats base + bonos de equipo (si no está roto) + buffs activos + Fatiga.
+// combat.js y player.js SIEMPRE deben leer stats a través de esta función, nunca player.stats directo.
 function getEffectiveStats() {
   const base = game.state.player.stats;
   const effective = { ...base };
 
   const equipped = game.state.player.equipped;
   [equipped.weapon, equipped.armor].forEach((eq) => {
-    if (!eq || typeof ITEM_DATABASE === 'undefined') return;
+    if (!eq) return;
     const item = ITEM_DATABASE[eq.itemId];
-    if (item && item.statBonus) {
+    if (item && item.statBonus && eq.durability > 0) {
       Object.entries(item.statBonus).forEach(([stat, value]) => {
         if (effective[stat] !== undefined) effective[stat] += value;
       });
