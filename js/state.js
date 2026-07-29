@@ -36,8 +36,8 @@ const game = {
     renderer: null,
     clock: null,
     player: null,
-    currentObstacles: [], // [{x, z, radius}], reconstruido en cada buildZone()
-    zoneBounds: null,     // límite del terreno jugable, lo fija buildZone()
+    currentObstacles: [],
+    zoneBounds: null,
     currentEnemies: [],
     playerCombat: {
       isBlocking: false,
@@ -51,14 +51,12 @@ const game = {
     },
   },
 
-  // ---- registro extensible de sistemas (ver main.js) ----
-  // Cada sistema se suscribe aquí en lugar de que main.js lo llame a mano.
-  // Así main.js nunca necesita editarse al agregar un sistema nuevo (Regla 2 y 4).
+  // ---- registro extensible de sistemas ----
   _updateFns: [],
-  registerSystem(fn) { this._updateFns.push(fn); },
+  registerSystem(fn) {
+    this._updateFns.push(fn);
+  },
   emit(eventName, detail) {
     window.dispatchEvent(new CustomEvent(eventName, { detail }));
   },
-  
-  
 };
