@@ -11,13 +11,21 @@ const game = {
       xp: 0,
       xpToNextLevel: 100,
       stats: { hp: 100, maxHp: 100, attack: 10, defense: 5, speed: 5, stamina: 100, maxStamina: 100 },
-      equipped: { weapon: null, armor: null },
+      equipped: {
+        weapon: { itemId: 'sword_iron', durability: 100 },
+        armor: { itemId: 'armor_leather', durability: 80 },
+      },
       weaponProficiency: { sword: 0, dagger: 0, axe: 0, spear: 0 },
       activeBuffs: [],
       currency: 0,
       fatigueUntil: null,
     },
-    inventory: [],
+    inventory: [
+      { itemId: 'dagger_swift', quantity: 1 },
+      { itemId: 'axe_battle', quantity: 1 },
+      { itemId: 'spear_guard', quantity: 1 },
+      { itemId: 'potion_health_minor', quantity: 3 },
+    ],
     currentZone: 'zone_1',
     unlockedZones: ['zone_1'],
     enemies: [],
@@ -29,7 +37,7 @@ const game = {
     settings: { difficulty: 'normal', soundOn: true, joystickSensitivity: 1.0 },
   },
 
-  // ---- refs: objetos vivos de Three.js y datos derivados de la zona actual. NUNCA se guardan. ----
+  // ---- refs: objetos vivos de Three.js y datos derivados. NUNCA se guardan. ----
   refs: {
     scene: null,
     camera: null,
@@ -48,6 +56,9 @@ const game = {
       dodgeActiveUntil: 0,
       dodgeStartPos: null,
       dodgeEndPos: null,
+    },
+    uiState: {
+      modalOpen: false, // true mientras cualquier overlay (inventario, y a futuro crafteo/quests/tienda) esté abierto
     },
   },
 
