@@ -1,8 +1,6 @@
-// HUD permanente (Hito 2). Los menús (inventario, crafteo, quests, logros, bestiario,
-// tienda, pausa/ajustes) se agregan en sus propios hitos como overlays nuevos,
-// sin tocar lo que ya está armado acá.
+// HUD, notificaciones, números de daño flotantes, overlays de cooldown de skills.
 
-let _hp, _xp, _stamina, _level, _notifContainer;
+let _hp, _xp, _stamina, _level, _notifContainer, _fatigueIndicator, _damageNumberContainer;
 
 function initUI() {
   _hp = document.getElementById('hp-bar-fill');
@@ -10,10 +8,8 @@ function initUI() {
   _stamina = document.getElementById('stamina-bar-fill');
   _level = document.getElementById('hud-level');
   _notifContainer = document.getElementById('notification-container');
-
-  // Botón temporal de testeo — se retira en el Hito 3, cuando el combate dé XP real.
-  const debugBtn = document.getElementById('debug-xp-btn');
-  if (debugBtn) debugBtn.addEventListener('click', () => gainXp(50));
+  _fatigueIndicator = document.getElementById('fatigue-indicator');
+  _damageNumberContainer = document.getElementById('damage-number-container');
 
   game.registerSystem(updateHUD);
 }
@@ -26,6 +22,51 @@ function updateHUD() {
   _xp.style.width = `${Math.max(0, (player.xp / player.xpToNextLevel) * 100)}%`;
   _stamina.style.width = `${Math.max(0, (stats.stamina / stats.maxStamina) * 100)}%`;
   _level.textContent = `Nv. ${player.level}`;
+
+  if (player.fatigueUntil && Date.now() < player.fatigueUntil) {
+    const secondsLeft = Math.ceil((player.fatigueUntil - Date.now()) / 1000);
+    _fatigueIndicator.textContent = `Fatiga: ${secondsLeft}s`;
+    _fatigueIndicator.classList.remove('hidden');
+  } else {
+    _fatigueIndicator.classList.add('hidden');
+    if (player.fatigueUntil) player.fatigueUntil = null;
+  }
+
+  updateSkillCooldownOverlays();
+}
+
+function updateSkillCooldownOverlays() {
+  document.querySelectorAll('.skill-btn').forEach((btn) => {
+    const fraction = getSkillCooldownFraction(btn.dataset.skillId);
+    btn.querySelector('.skill-btn-cooldown').style.height = `${fraction * 100}%`;
+    btn.classList.toggle('on-cooldown', fraction > 0);
+  });
+}
+
+function getSkillCooldownFraction(skillId) {
+  const skill = SWORD_SKILL_DATABASE[skillId];
+  if (!skill) return 0;
+  const remaining = (game.state.cooldowns[skillId] || 0) - performance.now() / 1000;
+  return remaining <= 0 ? 0 : Math.min(1, remaining / skill.cooldown);
+}
+
+function refreshSkillButtons() {
+  const container = document.getElementById('skill-buttons');
+  container.innerHTML = '';
+
+  (game.refs.playerCombat.unlockedSkillIds || []).forEach((skillId) => {
+    const skill = SWORD_SKILL_DATABASE[skillId];
+    const btn = document.createElement('div');
+    btn.className = 'skill-btn touch-btn';
+    btn.dataset.skillId = skillId;
+    btn.innerHTML = `<div class="skill-btn-cooldown"></div><span class="skill-btn-label">${skill.name}</span>`;
+
+    btn.addEventListener('touchstart', (e) => { e.preventDefault(); startSkillPreMotion(skillId); }, { passive: false });
+    btn.addEventListener('touchend', (e) => { e.preventDefault(); releaseSkillPreMotion(skillId); }, { passive: false });
+    btn.addEventListener('touchcancel', (e) => { e.preventDefault(); releaseSkillPreMotion(skillId); }, { passive: false });
+
+    container.appendChild(btn);
+  });
 }
 
 function showNotification(message, type = 'info') {
@@ -35,7 +76,6 @@ function showNotification(message, type = 'info') {
   _notifContainer.appendChild(el);
 
   requestAnimationFrame(() => el.classList.add('visible'));
-
   setTimeout(() => {
     el.classList.remove('visible');
     setTimeout(() => el.remove(), 300);
@@ -44,4 +84,22 @@ function showNotification(message, type = 'info') {
 
 function showLevelUpNotification(newLevel) {
   showNotification(`¡Subiste a nivel ${newLevel}!`, 'levelup');
+}
+
+function showDamageNumber(worldPos, amount) {
+  const vector = new THREE.Vector3(worldPos.x, worldPos.y + 1.4, worldPos.z);
+  vector.project(game.refs.camera);
+
+  const x = (vector.x * 0.5 + 0.5) * window.innerWidth;
+  const y = (-vector.y * 0.5 + 0.5) * window.innerHeight;
+
+  const el = document.createElement('div');
+  el.className = 'damage-number';
+  el.textContent = amount;
+  el.style.left = `${x}px`;
+  el.style.top = `${y}px`;
+  _damageNumberContainer.appendChild(el);
+
+  requestAnimationFrame(() => el.classList.add('rising'));
+  setTimeout(() => el.remove(), 800);
 }
