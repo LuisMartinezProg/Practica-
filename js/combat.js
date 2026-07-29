@@ -58,12 +58,11 @@ const SWORD_SKILL_DATABASE = {
   },
 };
 
-const PRE_MOTION_DURATION = 0.4; // segundos, dentro del rango 0.3-0.6s del README
+const PRE_MOTION_DURATION = 0.4;
 
-let _debugWeaponCategoryOverride = null; // SOLO para probar categorías antes del Hito 4
+let _debugWeaponCategoryOverride = null;
 const _comboChainState = {};
 
-// ---- Categoría/maestría del arma equipada ----
 function _getEquippedWeaponCategory() {
   if (_debugWeaponCategoryOverride) return _debugWeaponCategoryOverride;
   const weapon = game.state.player.equipped.weapon;
@@ -71,7 +70,7 @@ function _getEquippedWeaponCategory() {
     const item = ITEM_DATABASE[weapon.itemId];
     if (item && item.damageCategory) return item.damageCategory;
   }
-  return 'slashing'; // sin arma equipada todavía; el Hito 4 lo reemplaza con el arma real
+  return 'slashing';
 }
 
 function _canCurrentWeaponBlock() {
@@ -80,7 +79,7 @@ function _canCurrentWeaponBlock() {
     const item = ITEM_DATABASE[weapon.itemId];
     if (item) return !!item.canBlock;
   }
-  return true; // por defecto, hasta que el Hito 4 traiga restricciones reales por arma
+  return true;
 }
 
 function _gainWeaponProficiency(category) {
@@ -117,10 +116,9 @@ function checkProficiencyUnlocks(category, silent = false) {
     });
   }
 
-  refreshSkillButtons(); // ui.js
+  refreshSkillButtons();
 }
 
-// ---- Detección de objetivos ----
 function _getPlayerForward() {
   const rot = game.refs.player.rotation.y;
   return { x: -Math.sin(rot), z: -Math.cos(rot) };
@@ -154,7 +152,6 @@ function _findEnemiesInRadius(range) {
   return results.sort((a, b) => a.dist - b.dist);
 }
 
-// ---- Daño ----
 function _dealDamageToEnemy(enemy, baseAttack, category) {
   const resistance = (enemy.resistances && enemy.resistances[category]) ?? 1.0;
   const rawDamage = (baseAttack - enemy.stats.defense) * resistance;
@@ -163,20 +160,20 @@ function _dealDamageToEnemy(enemy, baseAttack, category) {
   enemy.stats.hp -= damage;
   game.state.playerStats.totalDamageDealt += damage;
 
-  showDamageNumber(enemy.mesh.position, damage); // ui.js
+  showDamageNumber(enemy.mesh.position, damage);
 
   if (enemy.stats.hp <= 0) _killEnemy(enemy);
   return damage;
 }
 
 function _killEnemy(enemy) {
-  gainXp(enemy.xpReward); // leveling.js
+  gainXp(enemy.xpReward);
   game.state.player.currency += enemy.currencyReward;
   game.state.playerStats.enemiesKilled += 1;
 
   game.emit('enemyKilled', { type: enemy.type, xpReward: enemy.xpReward, currencyReward: enemy.currencyReward });
 
-  removeEnemy(enemy); // enemies.js
+  removeEnemy(enemy);
 }
 
 function _applySkillDamage(enemy, skill, multiplierOverride) {
@@ -184,11 +181,10 @@ function _applySkillDamage(enemy, skill, multiplierOverride) {
   _dealDamageToEnemy(enemy, getEffectiveStats().attack * mult, skill.category);
 
   if (skill.stunChance && Math.random() < skill.stunChance) {
-    _applyStunToEnemy(enemy, skill.stunDuration); // enemies.js
+    _applyStunToEnemy(enemy, skill.stunDuration);
   }
 }
 
-// ---- Ataque básico ----
 function performBasicAttack() {
   const now = performance.now() / 1000;
   if ((game.state.cooldowns['basicAttack'] || 0) > now) return;
@@ -203,10 +199,9 @@ function performBasicAttack() {
     _dealDamageToEnemy(hits[0].enemy, getEffectiveStats().attack, category);
     _gainWeaponProficiency(category);
   }
-  playSwingAnimation(); // player.js
+  playSwingAnimation();
 }
 
-// ---- Sword skills: pre-motion + ejecución ----
 function canUseSkill(skillId) {
   const skill = SWORD_SKILL_DATABASE[skillId];
   if (!skill) return false;
@@ -233,7 +228,6 @@ function releaseSkillPreMotion(skillId) {
   pc.preMotionSkillId = null;
 
   if (held >= PRE_MOTION_DURATION) executeSwordSkill(skillId);
-  // si se soltó antes de tiempo: se cancela, no se gasta cooldown
 }
 
 function executeSwordSkill(skillId) {
@@ -330,10 +324,9 @@ function _executeComboChainSkill(skillId, skill) {
   }
 }
 
-// ---- Daño recibido por el jugador ----
 function enemyAttackPlayer(enemy) {
   const now = performance.now() / 1000;
-  if (now < game.refs.playerCombat.invulnerableUntil) return; // i-frames de esquiva
+  if (now < game.refs.playerCombat.invulnerableUntil) return;
 
   const effective = getEffectiveStats();
   const baseDamage = Math.max(1, enemy.stats.attack - effective.defense);
@@ -347,10 +340,9 @@ function applyDamageToPlayer(amount) {
   const stats = game.state.player.stats;
   stats.hp = Math.max(0, stats.hp - Math.round(amount));
   showNotification(`-${Math.round(amount)} HP`, 'damage');
-  if (stats.hp <= 0) handlePlayerDeath(); // player.js
+  if (stats.hp <= 0) handlePlayerDeath();
 }
 
-// ---- Botones táctiles ----
 function _setupCombatButtons() {
   document.getElementById('attack-btn').addEventListener('touchstart', (e) => {
     e.preventDefault(); performBasicAttack();
@@ -365,7 +357,6 @@ function _setupCombatButtons() {
   blockBtn.addEventListener('touchend', (e) => { e.preventDefault(); endBlock(); }, { passive: false });
   blockBtn.addEventListener('touchcancel', (e) => { e.preventDefault(); endBlock(); }, { passive: false });
 
-  // ---- Controles de prueba temporales (se retiran en el Hito 4 con equipo real) ----
   const cycleCatBtn = document.getElementById('debug-cycle-category-btn');
   if (cycleCatBtn) cycleCatBtn.addEventListener('click', debugCycleWeaponCategory);
 
@@ -391,7 +382,7 @@ function debugAddProficiency(amount) {
 
 function initCombat() {
   _setupCombatButtons();
-  checkProficiencyUnlocks(_getEquippedWeaponCategory(), true); // silencioso: son las skills iniciales
+  checkProficiencyUnlocks(_getEquippedWeaponCategory(), true);
   game.registerSystem(updateCombat);
 }
 
