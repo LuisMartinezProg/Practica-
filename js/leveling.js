@@ -1,4 +1,4 @@
-// Niveles, stats derivados y XP. La ganancia de XP real por combate llega en el Hito 3.
+// Niveles, stats derivados y XP.
 
 function _recalculateStatsForLevel(level) {
   const stats = game.state.player.stats;
@@ -11,26 +11,24 @@ function gainXp(amount) {
   const player = game.state.player;
   player.xp += amount;
 
-  // while, no if: una ganancia grande puede cruzar más de un nivel de una vez
   while (player.xp >= player.xpToNextLevel) {
     player.xp -= player.xpToNextLevel;
     player.level += 1;
     player.xpToNextLevel = Math.round(100 * Math.pow(player.level, 1.5));
 
     _recalculateStatsForLevel(player.level);
-    player.stats.hp = player.stats.maxHp; // cura al máximo
+    player.stats.hp = player.stats.maxHp;
 
-    showLevelUpNotification(player.level); // ui.js
+    showLevelUpNotification(player.level);
   }
 }
 
 // Suma stats base + bonos de equipo + buffs activos + Fatiga.
-// combat.js (Hito 3) SIEMPRE debe leer stats a través de esta función, nunca player.stats directo.
+// combat.js SIEMPRE debe leer stats a través de esta función, nunca player.stats directo.
 function getEffectiveStats() {
   const base = game.state.player.stats;
   const effective = { ...base };
 
-  // Bonos de equipo — el Hito 4 define ITEM_DATABASE; hasta entonces esto no suma nada
   const equipped = game.state.player.equipped;
   [equipped.weapon, equipped.armor].forEach((eq) => {
     if (!eq || typeof ITEM_DATABASE === 'undefined') return;
@@ -42,7 +40,6 @@ function getEffectiveStats() {
     }
   });
 
-  // Buffs activos (aditivos), el Hito 7.5 empieza a poblarlos
   const now = Date.now();
   game.state.player.activeBuffs.forEach((buff) => {
     if (buff.expiresAt > now && effective[buff.statAffected] !== undefined) {
@@ -50,7 +47,6 @@ function getEffectiveStats() {
     }
   });
 
-  // Fatiga por muerte reciente (Hito 3): -15% attack/defense mientras esté activa
   if (game.state.player.fatigueUntil && now < game.state.player.fatigueUntil) {
     effective.attack *= 0.85;
     effective.defense *= 0.85;
