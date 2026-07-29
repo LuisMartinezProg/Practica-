@@ -60,5 +60,5 @@ const game = {
     window.dispatchEvent(new CustomEvent(eventName, { detail }));
   },
   
-  },
+  
 };
