@@ -1,180 +1,124 @@
 * {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+  margin: 0; padding: 0; box-sizing: border-box;
   -webkit-tap-highlight-color: transparent;
 }
 
 html, body {
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  touch-action: none;
-  background: #000;
+  width: 100%; height: 100%; overflow: hidden;
+  touch-action: none; background: #000;
   font-family: -apple-system, 'Segoe UI', sans-serif;
+  user-select: none;
 }
 
-#game-canvas-container {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-}
+.hidden { display: none !important; }
 
-#game-canvas-container canvas {
-  display: block;
-  touch-action: none;
-}
+#game-canvas-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; }
+#game-canvas-container canvas { display: block; touch-action: none; }
 
 /* ---- Controles táctiles ---- */
-#touch-controls {
-  position: fixed;
-  inset: 0;
-  z-index: 10;
-  pointer-events: none;
-}
+#touch-controls { position: fixed; inset: 0; z-index: 10; pointer-events: none; }
 
 #joystick-zone {
-  position: absolute;
-  left: 24px;
-  bottom: 24px;
-  width: 120px;
-  height: 120px;
-  pointer-events: auto;
-  touch-action: none;
+  position: absolute; left: 24px; bottom: 24px;
+  width: 120px; height: 120px; pointer-events: auto; touch-action: none;
 }
 
 #joystick-base {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.15);
-  border: 2px solid rgba(255, 255, 255, 0.35);
+  position: absolute; width: 100%; height: 100%; border-radius: 50%;
+  background: rgba(255, 255, 255, 0.15); border: 2px solid rgba(255, 255, 255, 0.35);
 }
 
 #joystick-knob {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 50px;
-  height: 50px;
-  margin-left: -25px;
-  margin-top: -25px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.55);
-  border: 2px solid rgba(255, 255, 255, 0.8);
+  position: absolute; left: 50%; top: 50%; width: 50px; height: 50px;
+  margin-left: -25px; margin-top: -25px; border-radius: 50%;
+  background: rgba(255, 255, 255, 0.55); border: 2px solid rgba(255, 255, 255, 0.8);
   transition: transform 0.05s linear;
 }
 
-/* ---- Menú principal ---- */
-#menu-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 20;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 24px;
-  background: linear-gradient(180deg, #142033, #0a1420);
-  color: #fff;
-  text-align: center;
-  padding: 24px;
+.touch-btn {
+  position: absolute; display: flex; align-items: center; justify-content: center;
+  border-radius: 50%; background: rgba(255, 255, 255, 0.18);
+  border: 2px solid rgba(255, 255, 255, 0.4); color: #fff;
+  font-size: 0.75rem; font-weight: 600; text-align: center;
+  pointer-events: auto; touch-action: none; overflow: hidden;
+}
+.touch-btn:active { background: rgba(255, 255, 255, 0.35); }
+
+#dodge-btn { width: 64px; height: 64px; left: 150px; bottom: 70px; background: rgba(76, 208, 224, 0.25); }
+#block-btn { width: 64px; height: 64px; right: 130px; bottom: 30px; background: rgba(120, 120, 255, 0.25); }
+#attack-btn { width: 88px; height: 88px; right: 24px; bottom: 24px; background: rgba(230, 71, 60, 0.3); font-size: 0.9rem; }
+
+#skill-buttons {
+  position: absolute; right: 24px; bottom: 128px;
+  display: flex; flex-direction: column-reverse; gap: 10px; align-items: flex-end;
 }
 
-#menu-overlay.hidden {
-  display: none;
+.skill-btn { position: relative; width: 56px; height: 56px; background: rgba(242, 201, 76, 0.25); }
+.skill-btn-label { position: relative; z-index: 1; padding: 0 4px; line-height: 1.05; font-size: 0.62rem; }
+.skill-btn-cooldown {
+  position: absolute; bottom: 0; left: 0; width: 100%; height: 0%;
+  background: rgba(0, 0, 0, 0.55); transition: height 0.1s linear;
 }
+.skill-btn.on-cooldown .skill-btn-label { opacity: 0.5; }
 
-#menu-title {
-  font-size: 1.8rem;
-  letter-spacing: 0.05em;
-}
-
-#menu-overlay button {
-  font-size: 1.1rem;
-  padding: 14px 40px;
-  border-radius: 8px;
-  border: none;
-  background: #3b6fa0;
-  color: #fff;
-  font-weight: 600;
-}
-
-#menu-overlay button:active {
-  background: #2c5680;
-}
-/* ---- HUD permanente ---- */
+/* ---- HUD ---- */
 #hud {
-  position: fixed;
-  top: 16px;
-  left: 16px;
-  z-index: 10;
-  width: 200px;
-  padding: 10px 12px;
-  background: rgba(0, 0, 0, 0.35);
-  border-radius: 10px;
-  color: #fff;
-  font-size: 0.8rem;
-  pointer-events: none;
+  position: fixed; top: 16px; left: 16px; z-index: 10; width: 200px;
+  padding: 10px 12px; background: rgba(0, 0, 0, 0.35); border-radius: 10px;
+  color: #fff; font-size: 0.8rem; pointer-events: none;
 }
-
 #hud-level { font-weight: 700; margin-bottom: 6px; }
-
 .hud-bar-row { display: flex; align-items: center; gap: 6px; margin-bottom: 4px; }
 .hud-bar-label { width: 28px; font-size: 0.7rem; opacity: 0.85; }
 .hud-bar-bg { flex: 1; height: 10px; background: rgba(255,255,255,0.15); border-radius: 6px; overflow: hidden; }
 .hud-bar-fill { height: 100%; width: 100%; transition: width 0.2s ease-out; }
-
 .hp-fill { background: #e6473c; }
 .xp-fill { background: #f2c94c; }
 .stamina-fill { background: #4cd0e0; }
 
+#fatigue-indicator {
+  margin-top: 6px; padding: 3px 8px; border-radius: 6px;
+  background: rgba(180, 60, 200, 0.5); font-size: 0.7rem; display: inline-block;
+}
+
 /* ---- Notificaciones ---- */
 #notification-container {
-  position: fixed;
-  top: 16px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 30;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  pointer-events: none;
+  position: fixed; top: 16px; left: 50%; transform: translateX(-50%); z-index: 30;
+  display: flex; flex-direction: column; align-items: center; gap: 8px; pointer-events: none;
 }
-
 .notification {
-  background: rgba(20, 20, 20, 0.85);
-  color: #fff;
-  padding: 8px 18px;
-  border-radius: 20px;
-  font-size: 0.85rem;
-  opacity: 0;
-  transform: translateY(-10px);
-  transition: opacity 0.3s ease, transform 0.3s ease;
+  background: rgba(20, 20, 20, 0.85); color: #fff; padding: 8px 18px; border-radius: 20px;
+  font-size: 0.85rem; opacity: 0; transform: translateY(-10px);
+  transition: opacity 0.3s ease, transform 0.3s ease; white-space: nowrap;
 }
-
 .notification.visible { opacity: 1; transform: translateY(0); }
+.notification-levelup { background: rgba(242, 201, 76, 0.95); color: #222; font-weight: 700; }
+.notification-skill { background: rgba(120, 200, 255, 0.95); color: #10202f; font-weight: 700; }
+.notification-death { background: rgba(180, 40, 40, 0.95); font-weight: 700; }
+.notification-damage { background: rgba(0,0,0,0.6); font-size: 0.75rem; }
 
-.notification-levelup {
-  background: rgba(242, 201, 76, 0.95);
-  color: #222;
-  font-weight: 700;
+/* ---- Números de daño ---- */
+#damage-number-container { position: fixed; inset: 0; z-index: 25; pointer-events: none; }
+.damage-number {
+  position: absolute; transform: translate(-50%, 0); color: #fff8dc; font-weight: 700;
+  font-size: 1rem; text-shadow: 0 0 4px rgba(0,0,0,0.8), 0 0 2px rgba(0,0,0,0.9);
+  opacity: 0; transition: transform 0.8s ease-out, opacity 0.8s ease-out;
+}
+.damage-number.rising { transform: translate(-50%, -40px); opacity: 1; }
+
+/* ---- Panel de pruebas temporal ---- */
+#debug-panel { position: fixed; top: 16px; right: 16px; z-index: 10; display: flex; flex-direction: column; gap: 6px; }
+#debug-panel button {
+  padding: 6px 10px; border-radius: 8px; border: 1px dashed rgba(255, 255, 255, 0.6);
+  background: rgba(0, 0, 0, 0.35); color: #fff; font-size: 0.68rem;
 }
 
-/* ---- Botón temporal de testeo ---- */
-#debug-xp-btn {
-  position: fixed;
-  top: 16px;
-  right: 16px;
-  z-index: 10;
-  padding: 8px 14px;
-  border-radius: 8px;
-  border: 1px dashed rgba(255, 255, 255, 0.6);
-  background: rgba(0, 0, 0, 0.35);
-  color: #fff;
-  font-size: 0.75rem;
+/* ---- Menú principal ---- */
+#menu-overlay {
+  position: fixed; inset: 0; z-index: 20; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 24px;
+  background: linear-gradient(180deg, #142033, #0a1420); color: #fff; text-align: center; padding: 24px;
 }
+#menu-title { font-size: 1.8rem; letter-spacing: 0.05em; }
+#menu-overlay button { font-size: 1.1rem; padding: 14px 40px; border-radius: 8px; border: none; background: #3b6fa0; color: #fff; font-weight: 600; }
+#menu-overlay button:active { background: #2c5680; }
