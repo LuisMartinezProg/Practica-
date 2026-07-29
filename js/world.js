@@ -15,13 +15,11 @@ const ZONE_DATABASE = {
       { type: 'rock', x: 4, z: -16, scale: 1.3 },
       { type: 'rock', x: 18, z: -2, scale: 0.8 },
     ],
-    // enemySpawns: []   -> TODO(Hito 3)
     enemySpawns: [
       { type: 'wolf', x: 6, z: 6 },
       { type: 'wolf', x: -8, z: -4 },
       { type: 'wolf', x: 12, z: -10 },
     ],
-  },
     // vendorPosition    -> TODO(Hito 7.5)
     // portalPosition    -> TODO(Hito 6)
   },
