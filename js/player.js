@@ -1,5 +1,5 @@
-// Movimiento, cámara en 3ra persona y joystick táctil.
-// Esquiva/bloqueo/ataque llegan en el Hito 3, como funciones nuevas en este mismo archivo.
+// Movimiento, cámara en 3ra persona, joystick táctil, esquiva y bloqueo.
+// Ataque básico y sword skills viven en combat.js; acá solo lo que mueve/posiciona al jugador.
 
 const PLAYER_CONFIG = {
   rotationLerpSpeed: 10,
@@ -11,15 +11,23 @@ const PLAYER_CONFIG = {
   collisionRadius: 0.4,
 };
 
+const DODGE_CONFIG = {
+  cooldown: 1.5,
+  staminaCost: 25,
+  iframeDuration: 0.3,
+  dashDistance: 3,
+  dashDuration: 0.2,
+};
+
+const BLOCK_CONFIG = { staminaDrainPerSecond: 15 };
+const ATTACK_ANIM_DURATION = 0.25;
+
 let _bobElapsed = 0;
+let _attackAnimUntil = 0;
 
 const _joystick = {
-  active: false,
-  touchId: null,
-  originX: 0,
-  originY: 0,
-  input: { x: 0, y: 0 },
-  maxRadius: 45, // px, debe coincidir con el radio visual en CSS
+  active: false, touchId: null, originX: 0, originY: 0,
+  input: { x: 0, y: 0 }, maxRadius: 45,
 };
 
 function _setupJoystick() {
@@ -55,7 +63,7 @@ function _setupJoystick() {
 
     knob.style.transform = `translate(${dx}px, ${dy}px)`;
     _joystick.input.x = dx / _joystick.maxRadius;
-    _joystick.input.y = -dy / _joystick.maxRadius; // arriba = adelante
+    _joystick.input.y = -dy / _joystick.maxRadius;
     e.preventDefault();
   }, { passive: false });
 
@@ -120,53 +128,161 @@ function _clampBounds(v) {
   return b == null ? v : Math.max(-b, Math.min(b, v));
 }
 
+function playSwingAnimation() {
+  _attackAnimUntil = performance.now() / 1000 + ATTACK_ANIM_DURATION;
+}
+
+// ---- Esquiva ----
+function performDodge() {
+  const pc = game.refs.playerCombat;
+  const now = performance.now() / 1000;
+
+  if ((game.state.cooldowns['dodge'] || 0) > now) return;
+  if (game.state.player.stats.stamina < DODGE_CONFIG.staminaCost) return;
+  if (pc.isBlocking) return;
+
+  game.state.cooldowns['dodge'] = now + DODGE_CONFIG.cooldown;
+  game.state.player.stats.stamina -= DODGE_CONFIG.staminaCost;
+  pc.invulnerableUntil = now + DODGE_CONFIG.iframeDuration;
+
+  const mesh = game.refs.player;
+  const input = _joystick.input;
+  let dirX, dirZ;
+
+  if (Math.abs(input.x) > 0.05 || Math.abs(input.y) > 0.05) {
+    const camForward = new THREE.Vector3();
+    game.refs.camera.getWorldDirection(camForward);
+    camForward.y = 0;
+    camForward.normalize();
+    const camRight = new THREE.Vector3().crossVectors(camForward, new THREE.Vector3(0, 1, 0));
+    const dir = new THREE.Vector3()
+      .addScaledVector(camForward, input.y)
+      .addScaledVector(camRight, input.x)
+      .normalize();
+    dirX = dir.x; dirZ = dir.z;
+  } else {
+    dirX = Math.sin(mesh.rotation.y); // hacia atrás respecto a la orientación actual
+    dirZ = Math.cos(mesh.rotation.y);
+  }
+
+  const targetX = _clampBounds(mesh.position.x + dirX * DODGE_CONFIG.dashDistance);
+  const targetZ = _clampBounds(mesh.position.z + dirZ * DODGE_CONFIG.dashDistance);
+
+  pc.dodgeStartPos = { x: mesh.position.x, z: mesh.position.z };
+  pc.dodgeEndPos = _canOccupy(targetX, targetZ)
+    ? { x: targetX, z: targetZ }
+    : { x: mesh.position.x, z: mesh.position.z }; // choca con algo: conserva las i-frames igual
+  pc.dodgeActiveUntil = now + DODGE_CONFIG.dashDuration;
+}
+
+// ---- Bloqueo ----
+function startBlock() {
+  const pc = game.refs.playerCombat;
+  const now = performance.now() / 1000;
+  if (!_canCurrentWeaponBlock()) return;
+  if (game.state.player.stats.stamina <= 0) return;
+  if (now < pc.dodgeActiveUntil) return;
+  pc.isBlocking = true;
+}
+
+function endBlock() {
+  game.refs.playerCombat.isBlocking = false;
+}
+
+// ---- Muerte ----
+function handlePlayerDeath() {
+  const player = game.state.player;
+
+  game.state.playerStats.deaths += 1;
+  player.xp = Math.floor(player.xp * 0.9); // -10% de XP parcial, nunca baja de nivel
+  player.fatigueUntil = Date.now() + 60000;
+
+  player.stats.hp = player.stats.maxHp;
+  const mesh = game.refs.player;
+  mesh.position.set(0, 0, 0); // entrada de zone_1; el Hito 6 define entry points reales
+  player.position.x = 0;
+  player.position.z = 0;
+
+  game.refs.playerCombat.isBlocking = false;
+  game.refs.playerCombat.preMotionSkillId = null;
+  game.refs.playerCombat.dodgeActiveUntil = 0;
+
+  showNotification('Has caído... reapareces con Fatiga (-15% ATQ/DEF, 60s)', 'death');
+  game.emit('playerDied', {});
+}
+
 function updatePlayer(delta) {
   const mesh = game.refs.player;
   const cam = game.refs.camera;
   if (!mesh || !cam) return;
-// NUEVO (Hito 2): regeneración pasiva de stamina — el Hito 3 la empieza a consumir
+
+  const pc = game.refs.playerCombat;
   const stats = game.state.player.stats;
-  stats.stamina = Math.min(stats.maxStamina, stats.stamina + 10 * delta);
-  const input = _joystick.input;
-  const moving = Math.abs(input.x) > 0.05 || Math.abs(input.y) > 0.05;
+  const now = performance.now() / 1000;
 
-  if (moving) {
-    const camForward = new THREE.Vector3();
-    cam.getWorldDirection(camForward);
-    camForward.y = 0;
-    camForward.normalize();
-    const camRight = new THREE.Vector3().crossVectors(camForward, new THREE.Vector3(0, 1, 0));
+  const isDodging = now < pc.dodgeActiveUntil;
+  const isBlocking = pc.isBlocking;
 
-    const moveDir = new THREE.Vector3()
-      .addScaledVector(camForward, input.y)
-      .addScaledVector(camRight, input.x);
-    if (moveDir.lengthSq() > 1) moveDir.normalize();
-
-    const dist = game.state.player.stats.speed * delta;
-    const nx = _clampBounds(mesh.position.x + moveDir.x * dist);
-    const nz = _clampBounds(mesh.position.z + moveDir.z * dist);
-
-    // Deslizamiento por eje si el movimiento combinado choca con un obstáculo
-    if (_canOccupy(nx, nz)) {
-      mesh.position.x = nx;
-      mesh.position.z = nz;
-    } else if (_canOccupy(nx, mesh.position.z)) {
-      mesh.position.x = nx;
-    } else if (_canOccupy(mesh.position.x, nz)) {
-      mesh.position.z = nz;
-    }
-
-    const targetRot = Math.atan2(-moveDir.x, -moveDir.z);
-    const diff = Math.atan2(Math.sin(targetRot - mesh.rotation.y), Math.cos(targetRot - mesh.rotation.y));
-    mesh.rotation.y += diff * Math.min(1, PLAYER_CONFIG.rotationLerpSpeed * delta);
-
-    _bobElapsed += delta * PLAYER_CONFIG.bobSpeed;
-    mesh.position.y = Math.sin(_bobElapsed) * PLAYER_CONFIG.bobAmount; // solo visual
+  if (isBlocking) {
+    stats.stamina = Math.max(0, stats.stamina - BLOCK_CONFIG.staminaDrainPerSecond * delta);
+    if (stats.stamina <= 0) pc.isBlocking = false;
   } else {
-    mesh.position.y += (0 - mesh.position.y) * Math.min(1, 8 * delta);
+    stats.stamina = Math.min(stats.maxStamina, stats.stamina + 10 * delta);
   }
 
-  // Sincroniza estado persistente (x/z reales; y se mantiene en nivel de suelo, sin el bobbing)
+  if (isDodging) {
+    const t = 1 - (pc.dodgeActiveUntil - now) / DODGE_CONFIG.dashDuration;
+    const ct = Math.max(0, Math.min(1, t));
+    mesh.position.x = pc.dodgeStartPos.x + (pc.dodgeEndPos.x - pc.dodgeStartPos.x) * ct;
+    mesh.position.z = pc.dodgeStartPos.z + (pc.dodgeEndPos.z - pc.dodgeStartPos.z) * ct;
+  } else if (isBlocking) {
+    // inmovilizado mientras bloquea
+  } else {
+    const input = _joystick.input;
+    const moving = Math.abs(input.x) > 0.05 || Math.abs(input.y) > 0.05;
+
+    if (moving) {
+      const camForward = new THREE.Vector3();
+      cam.getWorldDirection(camForward);
+      camForward.y = 0;
+      camForward.normalize();
+      const camRight = new THREE.Vector3().crossVectors(camForward, new THREE.Vector3(0, 1, 0));
+
+      const moveDir = new THREE.Vector3()
+        .addScaledVector(camForward, input.y)
+        .addScaledVector(camRight, input.x);
+      if (moveDir.lengthSq() > 1) moveDir.normalize();
+
+      const dist = stats.speed * delta;
+      const nx = _clampBounds(mesh.position.x + moveDir.x * dist);
+      const nz = _clampBounds(mesh.position.z + moveDir.z * dist);
+
+      if (_canOccupy(nx, nz)) {
+        mesh.position.x = nx; mesh.position.z = nz;
+      } else if (_canOccupy(nx, mesh.position.z)) {
+        mesh.position.x = nx;
+      } else if (_canOccupy(mesh.position.x, nz)) {
+        mesh.position.z = nz;
+      }
+
+      const targetRot = Math.atan2(-moveDir.x, -moveDir.z);
+      const diff = Math.atan2(Math.sin(targetRot - mesh.rotation.y), Math.cos(targetRot - mesh.rotation.y));
+      mesh.rotation.y += diff * Math.min(1, PLAYER_CONFIG.rotationLerpSpeed * delta);
+
+      _bobElapsed += delta * PLAYER_CONFIG.bobSpeed;
+      mesh.position.y = Math.sin(_bobElapsed) * PLAYER_CONFIG.bobAmount;
+    } else {
+      mesh.position.y += (0 - mesh.position.y) * Math.min(1, 8 * delta);
+    }
+  }
+
+  if (now < _attackAnimUntil) {
+    const t = 1 - (_attackAnimUntil - now) / ATTACK_ANIM_DURATION;
+    mesh.rotation.x = Math.sin(Math.max(0, Math.min(1, t)) * Math.PI) * 0.35;
+  } else {
+    mesh.rotation.x = 0;
+  }
+
   game.state.player.position.x = mesh.position.x;
   game.state.player.position.z = mesh.position.z;
   game.state.player.rotation = mesh.rotation.y;
