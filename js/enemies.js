@@ -1,5 +1,11 @@
-
 // IA de enemigos, spawns, resistencias, jefes por fases, arqueros a distancia y curanderos.
+// Multiplicadores de dificultad se leen UNA VEZ al instanciar cada enemigo (README 4.20).
+
+const DIFFICULTY_MULTIPLIERS = {
+  easy: { hp: 0.75, damage: 0.75 },
+  normal: { hp: 1.0, damage: 1.0 },
+  hard: { hp: 1.3, damage: 1.25 },
+};
 
 const ENEMY_DATABASE = {
   wolf: {
@@ -99,6 +105,10 @@ function _spawnEnemy(type, x, z, groupId) {
   const data = ENEMY_DATABASE[type];
   if (!data) { console.error(`Tipo de enemigo desconocido: ${type}`); return; }
 
+  const diff = DIFFICULTY_MULTIPLIERS[game.state.settings.difficulty] || DIFFICULTY_MULTIPLIERS.normal;
+  const scaledHp = Math.max(1, Math.round(data.stats.hp * diff.hp));
+  const scaledAttack = Math.max(1, Math.round(data.stats.attack * diff.damage));
+
   const mesh = _makeEnemyMesh(data.color, data.scale);
   const groundY = getGroundHeight(game.state.currentZone, x, z);
   mesh.position.set(x, groundY, z);
@@ -107,7 +117,8 @@ function _spawnEnemy(type, x, z, groupId) {
   const enemy = {
     id: `enemy_${_enemyIdCounter++}`,
     type, mesh, groupId: groupId || null,
-    stats: { ...data.stats, maxHp: data.stats.hp },
+    stats: { hp: scaledHp, maxHp: scaledHp, attack: scaledAttack, defense: data.stats.defense },
+    baseAttack: scaledAttack, // referencia para recalcular multiplicadores de fase de jefe (no usar data.stats.attack crudo)
     resistances: data.resistances,
     moveSpeed: data.moveSpeed,
     detectionRadius: data.detectionRadius,
@@ -142,7 +153,6 @@ function populateZoneEnemies(zoneId) {
   const zoneData = ZONE_DATABASE[zoneId];
   if (!zoneData || !zoneData.enemySpawns) return;
   zoneData.enemySpawns.forEach((spawn) => {
-    if (spawn.type === ENEMY_DATABASE[spawn.type] && 0) return; // no-op, mantiene forma
     if (ENEMY_DATABASE[spawn.type] && ENEMY_DATABASE[spawn.type].isBoss && game.state.defeatedBosses.includes(spawn.type)) return;
     _spawnEnemy(spawn.type, spawn.x, spawn.z, spawn.groupId);
   });
@@ -196,7 +206,7 @@ function _checkBossPhase(enemy, data, now) {
 
   enemy.phaseIndex = nextIndex;
   if (nextPhase.moveSpeedMultiplier) enemy.moveSpeed = data.moveSpeed * nextPhase.moveSpeedMultiplier;
-  if (nextPhase.attackMultiplier) enemy.stats.attack = Math.round(data.stats.attack * nextPhase.attackMultiplier);
+  if (nextPhase.attackMultiplier) enemy.stats.attack = Math.round(enemy.baseAttack * nextPhase.attackMultiplier);
   enemy.currentAreaAttack = nextPhase.areaAttack || null;
   enemy.areaAttackState = 'idle';
   enemy.lastAreaAttackTime = now;
@@ -244,7 +254,7 @@ function _fireProjectile(enemy) {
 function _updateProjectiles() {
   for (let i = game.refs.activeProjectiles.length - 1; i >= 0; i--) {
     const p = game.refs.activeProjectiles[i];
-    p.elapsed += 1 / 60; // aproximación estable independiente del delta variable
+    p.elapsed += 1 / 60;
     const t = Math.min(1, p.elapsed / p.duration);
     p.mesh.position.x = p.start.x + (p.target.x - p.start.x) * t;
     p.mesh.position.z = p.start.z + (p.target.z - p.start.z) * t;
