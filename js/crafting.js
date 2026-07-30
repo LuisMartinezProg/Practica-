@@ -1,5 +1,4 @@
 // Crafteo de items nuevos y reparación del equipo actualmente puesto.
-// Sin recetas nuevas en este hito: los materiales de pisos 2-8 quedan listos para cuando se amplíe.
 
 const RECIPE_DATABASE = {
   craft_potion_medium: { resultItemId: 'potion_health_medium', type: 'craft', materials: [{ itemId: 'material_wolf_pelt', quantity: 2 }], category: null, tier: 'common' },
@@ -59,6 +58,7 @@ function craft(recipeId) {
     showNotification(`Crafteado: ${ITEM_DATABASE[recipe.resultItemId].name}`, 'craft');
   }
 
+  playSound('craft');
   refreshInventoryUI();
   refreshCraftingUI();
   return true;
@@ -84,6 +84,7 @@ function toggleCrafting() {
 
 function openCrafting() {
   if (typeof closeInventory === 'function') closeInventory();
+  if (typeof closeSettings === 'function') closeSettings();
   game.refs.uiState.modalOpen = true;
   document.getElementById('crafting-overlay').classList.remove('hidden');
   refreshCraftingUI();
