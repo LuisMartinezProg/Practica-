@@ -1,15 +1,21 @@
-// HUD, notificaciones, números de daño flotantes, overlays de cooldown de skills.
+// HUD, notificaciones, números de daño flotantes, overlays de cooldown de skills, y pantalla de victoria.
 
-let _hp, _xp, _stamina, _level, _notifContainer, _fatigueIndicator, _damageNumberContainer;
+let _hp, _xp, _stamina, _level, _zoneName, _notifContainer, _fatigueIndicator, _damageNumberContainer;
 
 function initUI() {
   _hp = document.getElementById('hp-bar-fill');
   _xp = document.getElementById('xp-bar-fill');
   _stamina = document.getElementById('stamina-bar-fill');
   _level = document.getElementById('hud-level');
+  _zoneName = document.getElementById('hud-zone-name');
   _notifContainer = document.getElementById('notification-container');
   _fatigueIndicator = document.getElementById('fatigue-indicator');
   _damageNumberContainer = document.getElementById('damage-number-container');
+
+  document.getElementById('victory-dismiss-btn').addEventListener('click', () => {
+    document.getElementById('victory-overlay').classList.add('hidden');
+    game.refs.uiState.modalOpen = false;
+  });
 
   game.registerSystem(updateHUD);
 }
@@ -23,6 +29,9 @@ function updateHUD() {
   _xp.style.width = `${Math.max(0, (player.xp / player.xpToNextLevel) * 100)}%`;
   _stamina.style.width = `${Math.max(0, (stats.stamina / stats.maxStamina) * 100)}%`;
   _level.textContent = `Nv. ${player.level}`;
+
+  const zoneData = ZONE_DATABASE[game.state.currentZone];
+  _zoneName.textContent = zoneData ? zoneData.name : '';
 
   if (player.fatigueUntil && Date.now() < player.fatigueUntil) {
     const secondsLeft = Math.ceil((player.fatigueUntil - Date.now()) / 1000);
@@ -103,4 +112,9 @@ function showDamageNumber(worldPos, amount) {
 
   requestAnimationFrame(() => el.classList.add('rising'));
   setTimeout(() => el.remove(), 800);
+}
+
+function triggerVictory() {
+  document.getElementById('victory-overlay').classList.remove('hidden');
+  game.refs.uiState.modalOpen = true;
 }
