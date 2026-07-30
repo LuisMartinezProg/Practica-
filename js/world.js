@@ -325,7 +325,8 @@ function transitionToZone(nextZoneId) {
   game.state.player.position.z = entry.z;
 
   showNotification(`Entraste a: ${ZONE_DATABASE[nextZoneId].name}`, 'zone');
-  // TODO(Hito 7): saveGame() acá una vez que exista save.js
+  playSound('zoneTransition');
+  saveGame();
 }
 
 function _notifyPortalLocked() {
