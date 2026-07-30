@@ -10,6 +10,7 @@ function _recalculateStatsForLevel(level) {
 function gainXp(amount) {
   const player = game.state.player;
   player.xp += amount;
+  let leveledUp = false;
 
   while (player.xp >= player.xpToNextLevel) {
     player.xp -= player.xpToNextLevel;
@@ -20,6 +21,12 @@ function gainXp(amount) {
     player.stats.hp = getEffectiveStats().maxHp;
 
     showLevelUpNotification(player.level);
+    leveledUp = true;
+  }
+
+  if (leveledUp) {
+    playSound('levelup');
+    saveGame();
   }
 }
 
@@ -53,8 +60,6 @@ function getEffectiveStats() {
   return effective;
 }
 
-// Aplica un modificador temporal de stat (ej. lentitud del elemental de hielo).
-// UI con ícono/timer (mismo patrón que Fatiga) queda para el Hito 7.5; acá solo la mecánica.
 function applyTimedBuff(statAffected, modifier, durationMs) {
   game.state.player.activeBuffs.push({ statAffected, modifier, expiresAt: Date.now() + durationMs });
   _pruneExpiredBuffs();
