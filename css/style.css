@@ -62,6 +62,7 @@ html, body {
 
 #inventory-toggle-btn { width: 56px; height: 56px; top: 16px; right: 16px; bottom: auto; left: auto; background: rgba(180, 140, 60, 0.35); font-size: 1.4rem; }
 #crafting-toggle-btn { width: 56px; height: 56px; top: 80px; right: 16px; bottom: auto; left: auto; background: rgba(140, 100, 200, 0.35); font-size: 1.3rem; }
+#settings-toggle-btn { width: 56px; height: 56px; top: 144px; right: 16px; bottom: auto; left: auto; background: rgba(120, 120, 120, 0.35); font-size: 1.3rem; }
 
 #hud {
   position: fixed; top: 16px; left: 16px; z-index: 10; width: 200px;
@@ -113,107 +114,49 @@ html, body {
 
 /* ---- Inventario ---- */
 #inventory-overlay {
-  position: fixed; inset: 0; z-index: 35;
-  background: rgba(0, 0, 0, 0.6);
-  display: flex; align-items: center; justify-content: center;
-  padding: 16px;
+  position: fixed; inset: 0; z-index: 35; background: rgba(0, 0, 0, 0.6);
+  display: flex; align-items: center; justify-content: center; padding: 16px;
 }
-
 #inventory-panel {
-  width: 100%; max-width: 420px; max-height: 85vh;
-  background: #1b2434; border-radius: 14px; color: #fff;
-  display: flex; flex-direction: column; overflow: hidden;
+  width: 100%; max-width: 420px; max-height: 85vh; background: #1b2434; border-radius: 14px;
+  color: #fff; display: flex; flex-direction: column; overflow: hidden;
 }
-
-#inventory-header {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 14px 16px; background: rgba(255,255,255,0.06);
-  font-weight: 700;
-}
-
+#inventory-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; background: rgba(255,255,255,0.06); font-weight: 700; }
 #inventory-close-btn { font-size: 1.2rem; opacity: 0.8; padding: 0 6px; }
-
-#equipped-section {
-  display: flex; gap: 10px; padding: 12px 16px;
-  border-bottom: 1px solid rgba(255,255,255,0.08);
-}
-
+#equipped-section { display: flex; gap: 10px; padding: 12px 16px; border-bottom: 1px solid rgba(255,255,255,0.08); }
 .equipped-slot { flex: 1; background: rgba(255,255,255,0.05); border-radius: 10px; padding: 8px; min-height: 64px; }
 .equipped-slot-label { font-size: 0.65rem; opacity: 0.6; margin-bottom: 4px; text-transform: uppercase; }
 .equipped-slot-content { font-size: 0.8rem; }
 .equipped-item-name { font-weight: 600; margin-bottom: 4px; }
 .equipped-item-empty { opacity: 0.4; font-style: italic; font-size: 0.75rem; }
-
 .durability-bar-bg { height: 6px; background: rgba(255,255,255,0.15); border-radius: 4px; overflow: hidden; margin-top: 4px; }
 .durability-bar-fill { height: 100%; background: #6fce6f; transition: width 0.2s ease-out; }
 .durability-bar-fill.low { background: #e6c23c; }
 .durability-bar-fill.broken { background: #e6473c; }
-
-#inventory-grid {
-  display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px;
-  padding: 14px 16px; overflow-y: auto;
-}
-
+#inventory-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; padding: 14px 16px; overflow-y: auto; }
 .inventory-slot {
-  position: relative; aspect-ratio: 1; border-radius: 8px;
-  background: rgba(255,255,255,0.06); border: 2px solid rgba(255,255,255,0.2);
-  display: flex; align-items: center; justify-content: center;
+  position: relative; aspect-ratio: 1; border-radius: 8px; background: rgba(255,255,255,0.06);
+  border: 2px solid rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center;
   padding: 4px; text-align: center; font-size: 0.6rem; line-height: 1.1;
 }
-
 .inventory-slot.rarity-rare { border-color: #4d8fe0; }
 .inventory-slot.rarity-epic { border-color: #a366e0; }
-
-.inventory-slot-qty {
-  position: absolute; bottom: 2px; right: 4px;
-  font-size: 0.62rem; font-weight: 700; opacity: 0.85;
-}
-
+.inventory-slot-qty { position: absolute; bottom: 2px; right: 4px; font-size: 0.62rem; font-weight: 700; opacity: 0.85; }
 .inventory-slot-empty { opacity: 0.15; }
 
-#item-action-menu {
-  position: fixed; z-index: 40; inset: 0;
-  background: rgba(0,0,0,0.55);
-  display: flex; align-items: center; justify-content: center;
-}
-
-#item-action-menu-card {
-  background: #1b2434; border-radius: 14px; padding: 18px;
-  width: 240px; color: #fff; display: flex; flex-direction: column; gap: 10px;
-}
-
+#item-action-menu { position: fixed; z-index: 40; inset: 0; background: rgba(0,0,0,0.55); display: flex; align-items: center; justify-content: center; }
+#item-action-menu-card { background: #1b2434; border-radius: 14px; padding: 18px; width: 240px; color: #fff; display: flex; flex-direction: column; gap: 10px; }
 #item-action-name { font-weight: 700; text-align: center; margin-bottom: 4px; }
-
-#item-action-menu button {
-  padding: 10px; border-radius: 8px; border: none;
-  background: rgba(255,255,255,0.1); color: #fff; font-size: 0.9rem;
-}
+#item-action-menu button { padding: 10px; border-radius: 8px; border: none; background: rgba(255,255,255,0.1); color: #fff; font-size: 0.9rem; }
 #item-action-menu button:active { background: rgba(255,255,255,0.22); }
 #item-action-cancel { background: rgba(230,71,60,0.25) !important; }
 
 /* ---- Crafteo ---- */
-#crafting-overlay {
-  position: fixed; inset: 0; z-index: 35;
-  background: rgba(0, 0, 0, 0.6);
-  display: flex; align-items: center; justify-content: center;
-  padding: 16px;
-}
-
-#crafting-panel {
-  width: 100%; max-width: 420px; max-height: 85vh;
-  background: #1b2434; border-radius: 14px; color: #fff;
-  display: flex; flex-direction: column; overflow: hidden;
-}
-
-#crafting-header {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 14px 16px; background: rgba(255,255,255,0.06); font-weight: 700;
-}
-
+#crafting-overlay { position: fixed; inset: 0; z-index: 35; background: rgba(0, 0, 0, 0.6); display: flex; align-items: center; justify-content: center; padding: 16px; }
+#crafting-panel { width: 100%; max-width: 420px; max-height: 85vh; background: #1b2434; border-radius: 14px; color: #fff; display: flex; flex-direction: column; overflow: hidden; }
+#crafting-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; background: rgba(255,255,255,0.06); font-weight: 700; }
 #crafting-close-btn { font-size: 1.2rem; opacity: 0.8; padding: 0 6px; }
-
 #crafting-list { padding: 10px 16px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
-
 .recipe-row { background: rgba(255,255,255,0.05); border-radius: 10px; padding: 10px 12px; }
 .recipe-row-name { font-weight: 700; font-size: 0.9rem; margin-bottom: 4px; }
 .recipe-row-type { font-weight: 400; opacity: 0.6; font-size: 0.75rem; }
@@ -221,34 +164,47 @@ html, body {
 .recipe-material { font-size: 0.68rem; padding: 2px 7px; border-radius: 10px; background: rgba(255,255,255,0.08); }
 .recipe-material.ok { color: #8fe08f; }
 .recipe-material.missing { color: #e68f8f; }
-.recipe-row-btn {
-  width: 100%; padding: 8px; border-radius: 8px; border: none;
-  background: rgba(120, 200, 140, 0.35); color: #fff; font-size: 0.85rem; font-weight: 600;
-}
+.recipe-row-btn { width: 100%; padding: 8px; border-radius: 8px; border: none; background: rgba(120, 200, 140, 0.35); color: #fff; font-size: 0.85rem; font-weight: 600; }
 .recipe-row-btn:disabled { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.35); }
 
+/* ---- Ajustes ---- */
+#settings-overlay { position: fixed; inset: 0; z-index: 35; background: rgba(0, 0, 0, 0.6); display: flex; align-items: center; justify-content: center; padding: 16px; }
+#settings-panel { width: 100%; max-width: 380px; background: #1b2434; border-radius: 14px; color: #fff; padding-bottom: 18px; }
+#settings-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; background: rgba(255,255,255,0.06); font-weight: 700; border-radius: 14px 14px 0 0; }
+#settings-close-btn { font-size: 1.2rem; opacity: 0.8; padding: 0 6px; }
+.settings-row { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; font-size: 0.85rem; }
+.settings-row-column { flex-direction: column; align-items: stretch; gap: 8px; }
+.settings-inline-btn { padding: 6px 12px; border-radius: 8px; border: none; background: rgba(255,255,255,0.12); color: #fff; font-size: 0.8rem; }
+#settings-sensitivity-slider { width: 100%; }
+#settings-save-btn { margin: 4px 18px 0; padding: 10px; border-radius: 8px; border: none; background: #3b6fa0; color: #fff; font-weight: 600; width: calc(100% - 36px); }
+
+/* ---- Confirmación ---- */
+#confirm-overlay { position: fixed; inset: 0; z-index: 45; background: rgba(0,0,0,0.65); display: flex; align-items: center; justify-content: center; padding: 24px; }
+#confirm-panel { background: #1b2434; border-radius: 14px; padding: 20px; width: 100%; max-width: 320px; color: #fff; text-align: center; }
+#confirm-message { font-size: 0.9rem; margin-bottom: 16px; line-height: 1.4; }
+#confirm-buttons { display: flex; gap: 10px; }
+#confirm-buttons button { flex: 1; padding: 10px; border-radius: 8px; border: none; font-weight: 600; }
+#confirm-yes-btn { background: rgba(230, 71, 60, 0.6); color: #fff; }
+#confirm-no-btn { background: rgba(255,255,255,0.12); color: #fff; }
+
 /* ---- Victoria ---- */
-#victory-overlay {
-  position: fixed; inset: 0; z-index: 60;
-  background: rgba(0,0,0,0.75);
-  display: flex; align-items: center; justify-content: center;
-  padding: 24px;
-}
-#victory-panel {
-  background: linear-gradient(180deg, #2a2035, #16101f);
-  border-radius: 16px; padding: 32px 28px; text-align: center; color: #fff;
-  max-width: 360px;
-}
+#victory-overlay { position: fixed; inset: 0; z-index: 60; background: rgba(0,0,0,0.75); display: flex; align-items: center; justify-content: center; padding: 24px; }
+#victory-panel { background: linear-gradient(180deg, #2a2035, #16101f); border-radius: 16px; padding: 32px 28px; text-align: center; color: #fff; max-width: 360px; }
 #victory-panel h2 { font-size: 1.5rem; margin-bottom: 12px; color: #f2c94c; }
 #victory-panel p { font-size: 0.9rem; opacity: 0.85; margin-bottom: 20px; }
 #victory-panel button { padding: 12px 32px; border-radius: 8px; border: none; background: #3b6fa0; color: #fff; font-weight: 600; font-size: 1rem; }
 
 /* ---- Menú principal ---- */
 #menu-overlay {
-  position: fixed; inset: 0; z-index: 20; display: flex; flex-direction: column;
-  align-items: center; justify-content: center; gap: 24px;
+  position: fixed; inset: 0; z-index: 20; display: flex; align-items: center; justify-content: center;
   background: linear-gradient(180deg, #142033, #0a1420); color: #fff; text-align: center; padding: 24px;
 }
+#menu-main-screen, #menu-difficulty-screen { display: flex; flex-direction: column; align-items: center; gap: 20px; }
 #menu-title { font-size: 1.8rem; letter-spacing: 0.05em; }
-#menu-overlay button { font-size: 1.1rem; padding: 14px 40px; border-radius: 8px; border: none; background: #3b6fa0; color: #fff; font-weight: 600; }
+#menu-difficulty-screen h2 { font-size: 1.3rem; }
+#menu-overlay button {
+  font-size: 1.1rem; padding: 14px 40px; border-radius: 8px; border: none;
+  background: #3b6fa0; color: #fff; font-weight: 600; width: 220px;
+}
 #menu-overlay button:active { background: #2c5680; }
+#btn-menu-settings, #btn-difficulty-back { background: rgba(255,255,255,0.12); }
