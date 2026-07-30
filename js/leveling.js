@@ -17,14 +17,12 @@ function gainXp(amount) {
     player.xpToNextLevel = Math.round(100 * Math.pow(player.level, 1.5));
 
     _recalculateStatsForLevel(player.level);
-    player.stats.hp = getEffectiveStats().maxHp; // incluye bono de equipo, no solo el máximo base
+    player.stats.hp = getEffectiveStats().maxHp;
 
     showLevelUpNotification(player.level);
   }
 }
 
-// Suma stats base + bonos de equipo (si no está roto) + buffs activos + Fatiga.
-// combat.js y player.js SIEMPRE deben leer stats a través de esta función, nunca player.stats directo.
 function getEffectiveStats() {
   const base = game.state.player.stats;
   const effective = { ...base };
