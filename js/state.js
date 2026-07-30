@@ -58,7 +58,7 @@ const game = {
       dodgeEndPos: null,
     },
     uiState: {
-      modalOpen: false, // true mientras cualquier overlay (inventario, y a futuro crafteo/quests/tienda) esté abierto
+      modalOpen: false, // true mientras cualquier overlay (inventario, crafteo, y a futuro quests/tienda) esté abierto
     },
   },
 
