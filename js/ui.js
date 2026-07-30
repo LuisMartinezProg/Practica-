@@ -1,6 +1,70 @@
-// HUD, notificaciones, números de daño flotantes, overlays de cooldown de skills, y pantalla de victoria.
+// HUD, notificaciones, números de daño flotantes, cooldowns, victoria, ajustes y confirmaciones.
+// La sección de Ajustes/Confirmación se inicializa en DOMContentLoaded porque se usa
+// también ANTES de que arranque la partida (desde el menú principal).
 
 let _hp, _xp, _stamina, _level, _zoneName, _notifContainer, _fatigueIndicator, _damageNumberContainer;
+let _confirmCallback = null;
+
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('confirm-yes-btn').addEventListener('click', () => {
+    document.getElementById('confirm-overlay').classList.add('hidden');
+    if (_confirmCallback) _confirmCallback();
+    _confirmCallback = null;
+  });
+  document.getElementById('confirm-no-btn').addEventListener('click', () => {
+    document.getElementById('confirm-overlay').classList.add('hidden');
+    _confirmCallback = null;
+  });
+
+  document.getElementById('settings-toggle-btn').addEventListener('touchstart', (e) => { e.preventDefault(); openSettings(); }, { passive: false });
+  document.getElementById('settings-close-btn').addEventListener('click', closeSettings);
+
+  document.getElementById('settings-sound-toggle').addEventListener('click', () => {
+    game.state.settings.soundOn = !game.state.settings.soundOn;
+    _refreshSettingsUI();
+  });
+
+  document.getElementById('settings-sensitivity-slider').addEventListener('input', (e) => {
+    game.state.settings.joystickSensitivity = parseFloat(e.target.value);
+  });
+
+  document.getElementById('settings-save-btn').addEventListener('click', () => {
+    saveGame();
+    showNotification('Partida guardada', 'info');
+  });
+
+  document.getElementById('victory-dismiss-btn').addEventListener('click', () => {
+    document.getElementById('victory-overlay').classList.add('hidden');
+    game.refs.uiState.modalOpen = false;
+  });
+});
+
+function showConfirm(message, onConfirm) {
+  document.getElementById('confirm-message').textContent = message;
+  _confirmCallback = onConfirm;
+  document.getElementById('confirm-overlay').classList.remove('hidden');
+}
+
+function _refreshSettingsUI() {
+  const soundBtn = document.getElementById('settings-sound-toggle');
+  soundBtn.textContent = game.state.settings.soundOn ? '🔊 Activado' : '🔇 Desactivado';
+
+  document.getElementById('settings-sensitivity-slider').value = game.state.settings.joystickSensitivity;
+  document.getElementById('settings-save-btn').classList.toggle('hidden', !_gameInitialized);
+}
+
+function openSettings() {
+  if (typeof closeInventory === 'function') closeInventory();
+  if (typeof closeCrafting === 'function') closeCrafting();
+  if (_gameInitialized) game.refs.uiState.modalOpen = true;
+  _refreshSettingsUI();
+  document.getElementById('settings-overlay').classList.remove('hidden');
+}
+
+function closeSettings() {
+  document.getElementById('settings-overlay').classList.add('hidden');
+  if (_gameInitialized) game.refs.uiState.modalOpen = false;
+}
 
 function initUI() {
   _hp = document.getElementById('hp-bar-fill');
@@ -11,11 +75,6 @@ function initUI() {
   _notifContainer = document.getElementById('notification-container');
   _fatigueIndicator = document.getElementById('fatigue-indicator');
   _damageNumberContainer = document.getElementById('damage-number-container');
-
-  document.getElementById('victory-dismiss-btn').addEventListener('click', () => {
-    document.getElementById('victory-overlay').classList.add('hidden');
-    game.refs.uiState.modalOpen = false;
-  });
 
   game.registerSystem(updateHUD);
 }
@@ -117,4 +176,5 @@ function showDamageNumber(worldPos, amount) {
 function triggerVictory() {
   document.getElementById('victory-overlay').classList.remove('hidden');
   game.refs.uiState.modalOpen = true;
+  saveGame();
 }
