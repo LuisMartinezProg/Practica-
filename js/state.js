@@ -2,7 +2,7 @@
 // Regla 3: este objeto SOLO CRECE. Los campos existentes nunca cambian de nombre/tipo/ubicación.
 
 const game = {
-  // ---- state: todo lo serializable, se guarda en localStorage (a partir del Hito 7) ----
+  // ---- state: todo lo serializable, se guarda en localStorage ----
   state: {
     player: {
       position: { x: 0, y: 0, z: 0 },
@@ -65,7 +65,6 @@ const game = {
     },
   },
 
-  // ---- registro extensible de sistemas ----
   _updateFns: [],
   registerSystem(fn) {
     this._updateFns.push(fn);
