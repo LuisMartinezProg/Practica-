@@ -1,4 +1,4 @@
-// Movimiento, cámara en 3ra persona, joystick táctil, esquiva y bloqueo.
+// Movimiento, cámara en 3ra persona, joystick táctil (con sensibilidad configurable), esquiva y bloqueo.
 // Respeta multiplicador de velocidad de zona (piso 6) y desnivel de terreno (pisos 4 y 7).
 
 const PLAYER_CONFIG = {
@@ -62,8 +62,10 @@ function _setupJoystick() {
     dy = Math.sin(angle) * dist;
 
     knob.style.transform = `translate(${dx}px, ${dy}px)`;
-    _joystick.input.x = dx / _joystick.maxRadius;
-    _joystick.input.y = -dy / _joystick.maxRadius;
+
+    const sensitivity = game.state.settings.joystickSensitivity || 1;
+    _joystick.input.x = (dx / _joystick.maxRadius) * sensitivity;
+    _joystick.input.y = (-dy / _joystick.maxRadius) * sensitivity;
     e.preventDefault();
   }, { passive: false });
 
@@ -142,6 +144,7 @@ function performDodge() {
   game.state.cooldowns['dodge'] = now + DODGE_CONFIG.cooldown;
   game.state.player.stats.stamina -= DODGE_CONFIG.staminaCost;
   pc.invulnerableUntil = now + DODGE_CONFIG.iframeDuration;
+  playSound('dodge');
 
   const mesh = game.refs.player;
   const input = _joystick.input;
