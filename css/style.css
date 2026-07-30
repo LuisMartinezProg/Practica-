@@ -61,6 +61,7 @@ html, body {
 .skill-btn.on-cooldown .skill-btn-label { opacity: 0.5; }
 
 #inventory-toggle-btn { width: 56px; height: 56px; top: 16px; right: 16px; bottom: auto; left: auto; background: rgba(180, 140, 60, 0.35); font-size: 1.4rem; }
+#crafting-toggle-btn { width: 56px; height: 56px; top: 80px; right: 16px; bottom: auto; left: auto; background: rgba(140, 100, 200, 0.35); font-size: 1.3rem; }
 
 #hud {
   position: fixed; top: 16px; left: 16px; z-index: 10; width: 200px;
@@ -96,6 +97,7 @@ html, body {
 .notification-death { background: rgba(180, 40, 40, 0.95); font-weight: 700; }
 .notification-damage { background: rgba(0,0,0,0.6); font-size: 0.75rem; }
 .notification-warning { background: rgba(230, 160, 40, 0.95); color: #2a1d00; font-weight: 700; }
+.notification-craft { background: rgba(140, 100, 200, 0.95); font-weight: 700; }
 
 #damage-number-container { position: fixed; inset: 0; z-index: 25; pointer-events: none; }
 .damage-number {
@@ -184,6 +186,42 @@ html, body {
 }
 #item-action-menu button:active { background: rgba(255,255,255,0.22); }
 #item-action-cancel { background: rgba(230,71,60,0.25) !important; }
+
+/* ---- Crafteo ---- */
+#crafting-overlay {
+  position: fixed; inset: 0; z-index: 35;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex; align-items: center; justify-content: center;
+  padding: 16px;
+}
+
+#crafting-panel {
+  width: 100%; max-width: 420px; max-height: 85vh;
+  background: #1b2434; border-radius: 14px; color: #fff;
+  display: flex; flex-direction: column; overflow: hidden;
+}
+
+#crafting-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 16px; background: rgba(255,255,255,0.06); font-weight: 700;
+}
+
+#crafting-close-btn { font-size: 1.2rem; opacity: 0.8; padding: 0 6px; }
+
+#crafting-list { padding: 10px 16px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
+
+.recipe-row { background: rgba(255,255,255,0.05); border-radius: 10px; padding: 10px 12px; }
+.recipe-row-name { font-weight: 700; font-size: 0.9rem; margin-bottom: 4px; }
+.recipe-row-type { font-weight: 400; opacity: 0.6; font-size: 0.75rem; }
+.recipe-row-materials { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+.recipe-material { font-size: 0.68rem; padding: 2px 7px; border-radius: 10px; background: rgba(255,255,255,0.08); }
+.recipe-material.ok { color: #8fe08f; }
+.recipe-material.missing { color: #e68f8f; }
+.recipe-row-btn {
+  width: 100%; padding: 8px; border-radius: 8px; border: none;
+  background: rgba(120, 200, 140, 0.35); color: #fff; font-size: 0.85rem; font-weight: 600;
+}
+.recipe-row-btn:disabled { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.35); }
 
 /* ---- Menú principal ---- */
 #menu-overlay {
