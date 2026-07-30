@@ -43,6 +43,7 @@ function startGame() {
   initEnemies();                      // enemies.js
   initCombat();                       // combat.js
   initInventory();                    // inventory.js
+  initCrafting();                     // crafting.js
   initUI();                           // ui.js
 
   animate();
