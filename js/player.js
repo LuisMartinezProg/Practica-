@@ -1,5 +1,5 @@
 // Movimiento, cámara en 3ra persona, joystick táctil, esquiva y bloqueo.
-// Ataque básico y sword skills viven en combat.js; acá solo lo que mueve/posiciona al jugador.
+// Respeta multiplicador de velocidad de zona (piso 6) y desnivel de terreno (pisos 4 y 7).
 
 const PLAYER_CONFIG = {
   rotationLerpSpeed: 10,
@@ -83,15 +83,9 @@ function _setupJoystick() {
 
 function _makePlayerMesh() {
   const group = new THREE.Group();
-  const body = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.35, 0.35, 1.1, 8),
-    new THREE.MeshLambertMaterial({ color: 0x3b6fa0 })
-  );
+  const body = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.35, 1.1, 8), new THREE.MeshLambertMaterial({ color: 0x3b6fa0 }));
   body.position.y = 0.75;
-  const head = new THREE.Mesh(
-    new THREE.SphereGeometry(0.28, 10, 8),
-    new THREE.MeshLambertMaterial({ color: 0xe0b088 })
-  );
+  const head = new THREE.Mesh(new THREE.SphereGeometry(0.28, 10, 8), new THREE.MeshLambertMaterial({ color: 0xe0b088 }));
   head.position.y = 1.5;
   group.add(body, head);
   return group;
@@ -123,9 +117,14 @@ function _canOccupy(x, z) {
   return true;
 }
 
-function _clampBounds(v) {
+function _clampBoundsX(v) {
   const b = game.refs.zoneBounds;
-  return b == null ? v : Math.max(-b, Math.min(b, v));
+  return b == null ? v : Math.max(b.minX, Math.min(b.maxX, v));
+}
+
+function _clampBoundsZ(v) {
+  const b = game.refs.zoneBounds;
+  return b == null ? v : Math.max(b.minZ, Math.min(b.maxZ, v));
 }
 
 function playSwingAnimation() {
@@ -164,8 +163,8 @@ function performDodge() {
     dirZ = Math.cos(mesh.rotation.y);
   }
 
-  const targetX = _clampBounds(mesh.position.x + dirX * DODGE_CONFIG.dashDistance);
-  const targetZ = _clampBounds(mesh.position.z + dirZ * DODGE_CONFIG.dashDistance);
+  const targetX = _clampBoundsX(mesh.position.x + dirX * DODGE_CONFIG.dashDistance);
+  const targetZ = _clampBoundsZ(mesh.position.z + dirZ * DODGE_CONFIG.dashDistance);
 
   pc.dodgeStartPos = { x: mesh.position.x, z: mesh.position.z };
   pc.dodgeEndPos = _canOccupy(targetX, targetZ)
@@ -195,10 +194,12 @@ function handlePlayerDeath() {
   player.fatigueUntil = Date.now() + 60000;
 
   player.stats.hp = getEffectiveStats().maxHp;
+  const entry = (ZONE_DATABASE[game.state.currentZone] && ZONE_DATABASE[game.state.currentZone].entryPoint) || { x: 0, z: 0 };
   const mesh = game.refs.player;
-  mesh.position.set(0, 0, 0);
-  player.position.x = 0;
-  player.position.z = 0;
+  const groundY = getGroundHeight(game.state.currentZone, entry.x, entry.z);
+  mesh.position.set(entry.x, groundY, entry.z);
+  player.position.x = entry.x;
+  player.position.z = entry.z;
 
   game.refs.playerCombat.isBlocking = false;
   game.refs.playerCombat.preMotionSkillId = null;
@@ -229,6 +230,8 @@ function updatePlayer(delta) {
     stats.stamina = Math.min(stats.maxStamina, stats.stamina + 10 * delta);
   }
 
+  let isMoving = false;
+
   if (isDodging) {
     const t = 1 - (pc.dodgeActiveUntil - now) / DODGE_CONFIG.dashDuration;
     const ct = Math.max(0, Math.min(1, t));
@@ -238,9 +241,9 @@ function updatePlayer(delta) {
     // inmovilizado mientras bloquea
   } else {
     const input = _joystick.input;
-    const moving = Math.abs(input.x) > 0.05 || Math.abs(input.y) > 0.05;
+    isMoving = Math.abs(input.x) > 0.05 || Math.abs(input.y) > 0.05;
 
-    if (moving) {
+    if (isMoving) {
       const camForward = new THREE.Vector3();
       cam.getWorldDirection(camForward);
       camForward.y = 0;
@@ -252,9 +255,12 @@ function updatePlayer(delta) {
         .addScaledVector(camRight, input.x);
       if (moveDir.lengthSq() > 1) moveDir.normalize();
 
-      const dist = getEffectiveStats().speed * delta;
-      const nx = _clampBounds(mesh.position.x + moveDir.x * dist);
-      const nz = _clampBounds(mesh.position.z + moveDir.z * dist);
+      const zoneData = ZONE_DATABASE[game.state.currentZone];
+      const speedMultiplier = (zoneData && zoneData.movementSpeedMultiplier) || 1;
+      const dist = getEffectiveStats().speed * speedMultiplier * delta;
+
+      const nx = _clampBoundsX(mesh.position.x + moveDir.x * dist);
+      const nz = _clampBoundsZ(mesh.position.z + moveDir.z * dist);
 
       if (_canOccupy(nx, nz)) {
         mesh.position.x = nx; mesh.position.z = nz;
@@ -269,11 +275,12 @@ function updatePlayer(delta) {
       mesh.rotation.y += diff * Math.min(1, PLAYER_CONFIG.rotationLerpSpeed * delta);
 
       _bobElapsed += delta * PLAYER_CONFIG.bobSpeed;
-      mesh.position.y = Math.sin(_bobElapsed) * PLAYER_CONFIG.bobAmount;
-    } else {
-      mesh.position.y += (0 - mesh.position.y) * Math.min(1, 8 * delta);
     }
   }
+
+  const groundY = getGroundHeight(game.state.currentZone, mesh.position.x, mesh.position.z);
+  const bobOffset = isMoving ? Math.sin(_bobElapsed) * PLAYER_CONFIG.bobAmount : 0;
+  mesh.position.y += (groundY + bobOffset - mesh.position.y) * Math.min(1, 8 * delta);
 
   if (now < _attackAnimUntil) {
     const t = 1 - (_attackAnimUntil - now) / ATTACK_ANIM_DURATION;
@@ -284,16 +291,17 @@ function updatePlayer(delta) {
 
   game.state.player.position.x = mesh.position.x;
   game.state.player.position.z = mesh.position.z;
+  game.state.player.position.y = groundY;
   game.state.player.rotation = mesh.rotation.y;
 
   const camDist = PLAYER_CONFIG.cameraOffset.z;
   const camTargetX = mesh.position.x + Math.sin(mesh.rotation.y) * camDist;
   const camTargetZ = mesh.position.z + Math.cos(mesh.rotation.y) * camDist;
-  const camTargetY = game.state.player.position.y + PLAYER_CONFIG.cameraOffset.y;
+  const camTargetY = groundY + PLAYER_CONFIG.cameraOffset.y;
 
   const lerp = Math.min(1, PLAYER_CONFIG.cameraLerpSpeed * delta);
   cam.position.x += (camTargetX - cam.position.x) * lerp;
   cam.position.y += (camTargetY - cam.position.y) * lerp;
   cam.position.z += (camTargetZ - cam.position.z) * lerp;
-  cam.lookAt(mesh.position.x, game.state.player.position.y + PLAYER_CONFIG.cameraLookHeight, mesh.position.z);
+  cam.lookAt(mesh.position.x, groundY + PLAYER_CONFIG.cameraLookHeight, mesh.position.z);
 }
