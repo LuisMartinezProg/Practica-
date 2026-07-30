@@ -101,6 +101,7 @@ function equipItem(itemId) {
   }
 
   game.state.player.equipped[slot] = { itemId, durability: itemData.maxDurability };
+  playSound('equip');
   showNotification(`Equipado: ${itemData.name}`, 'info');
   refreshInventoryUI();
   return true;
@@ -182,6 +183,7 @@ function toggleInventory() {
 
 function openInventory() {
   if (typeof closeCrafting === 'function') closeCrafting();
+  if (typeof closeSettings === 'function') closeSettings();
   game.refs.uiState.modalOpen = true;
   document.getElementById('inventory-overlay').classList.remove('hidden');
   refreshInventoryUI();
