@@ -42,12 +42,16 @@ const ITEM_DATABASE = {
     id: 'potion_health_minor', name: 'Poción de Vida Menor', type: 'consumable', rarity: 'common',
     healAmount: 40,
   },
+  potion_health_medium: {
+    id: 'potion_health_medium', name: 'Poción de Vida Mediana', type: 'consumable', rarity: 'common',
+    healAmount: 80,
+  },
 };
 
 let _pendingItemId = null;
-let _pendingEquippedSlot = null; // null = viene del inventario; 'weapon'|'armor' = viene del panel de equipo
+let _pendingEquippedSlot = null;
 
-// ---- API pública (usada por combat.js, leveling.js, y a futuro crafting.js/shop.js) ----
+// ---- API pública (usada por combat.js, leveling.js, crafting.js, y a futuro shop.js) ----
 
 function addItem(itemId, qty = 1) {
   const itemData = ITEM_DATABASE[itemId];
@@ -209,14 +213,16 @@ function initInventory() {
 }
 
 function toggleInventory() {
-  if (game.refs.uiState.modalOpen) {
-    closeInventory();
-  } else {
+  const overlay = document.getElementById('inventory-overlay');
+  if (overlay.classList.contains('hidden')) {
     openInventory();
+  } else {
+    closeInventory();
   }
 }
 
 function openInventory() {
+  if (typeof closeCrafting === 'function') closeCrafting(); // cierra el otro menú si estaba abierto
   game.refs.uiState.modalOpen = true;
   document.getElementById('inventory-overlay').classList.remove('hidden');
   refreshInventoryUI();
