@@ -28,6 +28,7 @@ const game = {
     ],
     currentZone: 'zone_1',
     unlockedZones: ['zone_1'],
+    defeatedBosses: [],
     enemies: [],
     cooldowns: {},
     quests: { active: [], completed: [] },
@@ -46,7 +47,9 @@ const game = {
     player: null,
     currentObstacles: [],
     zoneBounds: null,
+    currentPortalMesh: null,
     currentEnemies: [],
+    activeProjectiles: [],
     playerCombat: {
       isBlocking: false,
       invulnerableUntil: 0,
@@ -58,7 +61,7 @@ const game = {
       dodgeEndPos: null,
     },
     uiState: {
-      modalOpen: false, // true mientras cualquier overlay (inventario, crafteo, y a futuro quests/tienda) esté abierto
+      modalOpen: false,
     },
   },
 
