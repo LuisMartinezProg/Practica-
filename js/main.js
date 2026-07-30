@@ -38,14 +38,15 @@ function startGame() {
   _gameInitialized = true;
 
   initThree();
-  initWorld();                        // world.js — registra el chequeo de portales
+  initWorld();
   buildZone(game.state.currentZone);
-  initPlayer();                       // player.js
-  initEnemies();                      // enemies.js
-  initCombat();                       // combat.js
-  initInventory();                    // inventory.js
-  initCrafting();                     // crafting.js
-  initUI();                           // ui.js
+  initPlayer();
+  initEnemies();
+  initCombat();
+  initInventory();
+  initCrafting();
+  initUI();
+  initSave();
 
   animate();
 }
