@@ -1,4 +1,4 @@
-// IA de enemigos, spawns y resistencias. Hito 3-4: solo "Lobo salvaje" (Piso 1).
+// IA de enemigos, spawns y resistencias. Hito 3-5: solo "Lobo salvaje" (Piso 1).
 
 const ENEMY_DATABASE = {
   wolf: {
@@ -133,7 +133,7 @@ function _updateEnemyAI(enemy, delta) {
 }
 
 function updateEnemies(delta) {
-  if (game.refs.uiState.modalOpen) return; // pausa si hay un menú abierto
+  if (game.refs.uiState.modalOpen) return;
 
   game.refs.currentEnemies.forEach((enemy) => _updateEnemyAI(enemy, delta));
 }
