@@ -22,6 +22,7 @@
     <div id="skill-buttons"></div>
     <div id="inventory-toggle-btn" class="touch-btn">🎒</div>
     <div id="crafting-toggle-btn" class="touch-btn">🔨</div>
+    <div id="settings-toggle-btn" class="touch-btn">⚙️</div>
   </div>
 
   <div id="hud">
@@ -88,6 +89,31 @@
     </div>
   </div>
 
+  <div id="settings-overlay" class="hidden">
+    <div id="settings-panel">
+      <div id="settings-header"><span>Ajustes</span><span id="settings-close-btn">✕</span></div>
+      <div class="settings-row">
+        <span>Sonido</span>
+        <button id="settings-sound-toggle" class="settings-inline-btn"></button>
+      </div>
+      <div class="settings-row settings-row-column">
+        <span>Sensibilidad del joystick</span>
+        <input type="range" id="settings-sensitivity-slider" min="0.5" max="2" step="0.1" />
+      </div>
+      <button id="settings-save-btn">Guardar Partida</button>
+    </div>
+  </div>
+
+  <div id="confirm-overlay" class="hidden">
+    <div id="confirm-panel">
+      <p id="confirm-message"></p>
+      <div id="confirm-buttons">
+        <button id="confirm-yes-btn">Sí</button>
+        <button id="confirm-no-btn">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
   <div id="victory-overlay" class="hidden">
     <div id="victory-panel">
       <h2>¡Guardián derrotado!</h2>
@@ -97,12 +123,25 @@
   </div>
 
   <div id="menu-overlay">
-    <h1 id="menu-title">SAO-Style Action RPG</h1>
-    <button id="btn-new-game">Nueva Partida</button>
+    <div id="menu-main-screen">
+      <h1 id="menu-title">SAO-Style Action RPG</h1>
+      <button id="btn-new-game">Nueva Partida</button>
+      <button id="btn-continue" class="hidden">Continuar</button>
+      <button id="btn-menu-settings">Ajustes</button>
+    </div>
+    <div id="menu-difficulty-screen" class="hidden">
+      <h2>Elegí la dificultad</h2>
+      <button class="difficulty-btn" data-difficulty="easy">Fácil</button>
+      <button class="difficulty-btn" data-difficulty="normal">Normal</button>
+      <button class="difficulty-btn" data-difficulty="hard">Difícil</button>
+      <button id="btn-difficulty-back">Volver</button>
+    </div>
   </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="js/state.js"></script>
+  <script src="js/save.js"></script>
+  <script src="js/audio.js"></script>
   <script src="js/menu.js"></script>
   <script src="js/main.js"></script>
   <script src="js/world.js"></script>
