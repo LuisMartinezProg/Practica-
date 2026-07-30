@@ -1,4 +1,4 @@
-// Niveles, stats derivados y XP.
+// Niveles, stats derivados, XP y buffs temporales (activeBuffs).
 
 function _recalculateStatsForLevel(level) {
   const stats = game.state.player.stats;
@@ -51,4 +51,16 @@ function getEffectiveStats() {
   }
 
   return effective;
+}
+
+// Aplica un modificador temporal de stat (ej. lentitud del elemental de hielo).
+// UI con ícono/timer (mismo patrón que Fatiga) queda para el Hito 7.5; acá solo la mecánica.
+function applyTimedBuff(statAffected, modifier, durationMs) {
+  game.state.player.activeBuffs.push({ statAffected, modifier, expiresAt: Date.now() + durationMs });
+  _pruneExpiredBuffs();
+}
+
+function _pruneExpiredBuffs() {
+  const now = Date.now();
+  game.state.player.activeBuffs = game.state.player.activeBuffs.filter((b) => b.expiresAt > now);
 }
