@@ -21,6 +21,7 @@
     <div id="attack-btn" class="touch-btn">Atacar</div>
     <div id="skill-buttons"></div>
     <div id="inventory-toggle-btn" class="touch-btn">🎒</div>
+    <div id="crafting-toggle-btn" class="touch-btn">🔨</div>
   </div>
 
   <div id="hud">
@@ -76,6 +77,16 @@
     </div>
   </div>
 
+  <div id="crafting-overlay" class="hidden">
+    <div id="crafting-panel">
+      <div id="crafting-header">
+        <span>Crafteo</span>
+        <span id="crafting-close-btn">✕</span>
+      </div>
+      <div id="crafting-list"></div>
+    </div>
+  </div>
+
   <div id="menu-overlay">
     <h1 id="menu-title">SAO-Style Action RPG</h1>
     <button id="btn-new-game">Nueva Partida</button>
@@ -91,6 +102,7 @@
   <script src="js/combat.js"></script>
   <script src="js/enemies.js"></script>
   <script src="js/inventory.js"></script>
+  <script src="js/crafting.js"></script>
   <script src="js/ui.js"></script>
 </body>
 </html>
