@@ -117,6 +117,7 @@ function _dealDamageToEnemy(enemy, baseAttack, category) {
   enemy.stats.hp -= damage;
   game.state.playerStats.totalDamageDealt += damage;
   damageEquippedWeapon();
+  playSound('hit');
 
   showDamageNumber(enemy.mesh.position, damage);
 
@@ -128,6 +129,7 @@ function _killEnemy(enemy) {
   gainXp(enemy.xpReward);
   game.state.player.currency += enemy.currencyReward;
   game.state.playerStats.enemiesKilled += 1;
+  playSound('enemyDeath');
 
   _rollEnemyDropTable(enemy);
 
@@ -289,7 +291,6 @@ function _executeComboChainSkill(skillId, skill) {
   }
 }
 
-// damageMultiplier: usado por ataques de área de jefe (ver enemies.js) sin duplicar la lógica.
 function enemyAttackPlayer(enemy, damageMultiplier = 1) {
   const now = performance.now() / 1000;
   if (now < game.refs.playerCombat.invulnerableUntil) return;
@@ -307,7 +308,6 @@ function enemyAttackPlayer(enemy, damageMultiplier = 1) {
   }
 }
 
-// Golpe que ignora el bloqueo por completo (solo fase 3 del jefe final). Esquivar SÍ lo evita.
 function dealUnblockableDamageToPlayer(enemy, damageMultiplier = 1) {
   const now = performance.now() / 1000;
   if (now < game.refs.playerCombat.invulnerableUntil) return;
@@ -321,6 +321,7 @@ function applyDamageToPlayer(amount) {
   const stats = game.state.player.stats;
   stats.hp = Math.max(0, stats.hp - Math.round(amount));
   damageEquippedArmor();
+  playSound('playerHurt');
   showNotification(`-${Math.round(amount)} HP`, 'damage');
   if (stats.hp <= 0) handlePlayerDeath();
 }
