@@ -68,6 +68,7 @@ html, body {
   padding: 10px 12px; background: rgba(0, 0, 0, 0.35); border-radius: 10px;
   color: #fff; font-size: 0.8rem; pointer-events: none;
 }
+#hud-zone-name { font-size: 0.68rem; opacity: 0.75; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.03em; }
 #hud-level { font-weight: 700; margin-bottom: 6px; }
 .hud-bar-row { display: flex; align-items: center; gap: 6px; margin-bottom: 4px; }
 .hud-bar-label { width: 28px; font-size: 0.7rem; opacity: 0.85; }
@@ -98,6 +99,9 @@ html, body {
 .notification-damage { background: rgba(0,0,0,0.6); font-size: 0.75rem; }
 .notification-warning { background: rgba(230, 160, 40, 0.95); color: #2a1d00; font-weight: 700; }
 .notification-craft { background: rgba(140, 100, 200, 0.95); font-weight: 700; }
+.notification-zone { background: rgba(80, 160, 170, 0.95); font-weight: 700; }
+.notification-boss { background: rgba(200, 60, 60, 0.95); font-weight: 700; }
+.notification-loot { background: rgba(0,0,0,0.6); font-size: 0.75rem; }
 
 #damage-number-container { position: fixed; inset: 0; z-index: 25; pointer-events: none; }
 .damage-number {
@@ -222,6 +226,22 @@ html, body {
   background: rgba(120, 200, 140, 0.35); color: #fff; font-size: 0.85rem; font-weight: 600;
 }
 .recipe-row-btn:disabled { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.35); }
+
+/* ---- Victoria ---- */
+#victory-overlay {
+  position: fixed; inset: 0; z-index: 60;
+  background: rgba(0,0,0,0.75);
+  display: flex; align-items: center; justify-content: center;
+  padding: 24px;
+}
+#victory-panel {
+  background: linear-gradient(180deg, #2a2035, #16101f);
+  border-radius: 16px; padding: 32px 28px; text-align: center; color: #fff;
+  max-width: 360px;
+}
+#victory-panel h2 { font-size: 1.5rem; margin-bottom: 12px; color: #f2c94c; }
+#victory-panel p { font-size: 0.9rem; opacity: 0.85; margin-bottom: 20px; }
+#victory-panel button { padding: 12px 32px; border-radius: 8px; border: none; background: #3b6fa0; color: #fff; font-weight: 600; font-size: 1rem; }
 
 /* ---- Menú principal ---- */
 #menu-overlay {
