@@ -1,4 +1,4 @@
-// Combate: ataque básico, categorías de arma, maestría, sword skills, daño recibido.
+// Combate: ataque básico, categorías de arma, maestría, sword skills, daño recibido (incluye ataques imbloqueables de jefe).
 
 const COMBAT_CONFIG = {
   basicAttackRange: 2.2,
@@ -15,50 +15,18 @@ const DAMAGE_CATEGORY_TO_PROFICIENCY_KEY = {
 };
 
 const SWORD_SKILL_DATABASE = {
-  estocada_simple: {
-    name: 'Estocada Simple', category: 'slashing', proficiencyRequired: 0,
-    cooldown: 0.8, behavior: 'single', multiplier: 1.3, range: 2.2, halfAngle: Math.PI / 4,
-  },
-  golpe_giratorio: {
-    name: 'Golpe Giratorio', category: 'slashing', proficiencyRequired: 100,
-    cooldown: 2.5, behavior: 'aoe360', multiplier: 1.4, range: 2.4,
-  },
-  filo_ascendente: {
-    name: 'Filo Ascendente', category: 'slashing', proficiencyRequired: 500,
-    cooldown: 3, behavior: 'comboChain', comboMultipliers: [0.8, 0.8], comboWindow: 1,
-    range: 2.2, halfAngle: Math.PI / 4,
-  },
-  golpe_rapido_doble: {
-    name: 'Golpe Rápido Doble', category: 'piercing', proficiencyRequired: 0,
-    cooldown: 0.6, behavior: 'multiHit', hits: 2, multiplier: 1.1, hitInterval: 0.12,
-    range: 1.8, halfAngle: Math.PI / 4,
-  },
-  paso_sombra: {
-    name: 'Paso Sombra', category: 'piercing', proficiencyRequired: 100,
-    cooldown: 2, behavior: 'dash', multiplier: 1.3, dashRange: 4, range: 1.8, halfAngle: Math.PI / 3,
-  },
-  golpe_aplastante: {
-    name: 'Golpe Aplastante', category: 'blunt', proficiencyRequired: 0,
-    cooldown: 3.5, behavior: 'single', multiplier: 1.8, range: 2, halfAngle: Math.PI / 4,
-    stunChance: 0.35, stunDuration: 1,
-  },
-  barrido: {
-    name: 'Barrido', category: 'blunt', proficiencyRequired: 500,
-    cooldown: 3, behavior: 'line', multiplier: 1.2, range: 3.5, halfWidth: 1.2,
-  },
-  embiste_certero: {
-    name: 'Embiste Certero', category: 'thrust', proficiencyRequired: 0,
-    cooldown: 1, behavior: 'single', multiplier: 1.4, range: 3.2, halfAngle: Math.PI / 6,
-  },
-  combo_trueno: {
-    name: 'Combo Trueno', category: 'thrust', proficiencyRequired: 1500,
-    cooldown: 4, behavior: 'comboChain', comboMultipliers: [0.6, 0.6, 0.8], comboWindow: 1.2,
-    range: 3, halfAngle: Math.PI / 6,
-  },
+  estocada_simple: { name: 'Estocada Simple', category: 'slashing', proficiencyRequired: 0, cooldown: 0.8, behavior: 'single', multiplier: 1.3, range: 2.2, halfAngle: Math.PI / 4 },
+  golpe_giratorio: { name: 'Golpe Giratorio', category: 'slashing', proficiencyRequired: 100, cooldown: 2.5, behavior: 'aoe360', multiplier: 1.4, range: 2.4 },
+  filo_ascendente: { name: 'Filo Ascendente', category: 'slashing', proficiencyRequired: 500, cooldown: 3, behavior: 'comboChain', comboMultipliers: [0.8, 0.8], comboWindow: 1, range: 2.2, halfAngle: Math.PI / 4 },
+  golpe_rapido_doble: { name: 'Golpe Rápido Doble', category: 'piercing', proficiencyRequired: 0, cooldown: 0.6, behavior: 'multiHit', hits: 2, multiplier: 1.1, hitInterval: 0.12, range: 1.8, halfAngle: Math.PI / 4 },
+  paso_sombra: { name: 'Paso Sombra', category: 'piercing', proficiencyRequired: 100, cooldown: 2, behavior: 'dash', multiplier: 1.3, dashRange: 4, range: 1.8, halfAngle: Math.PI / 3 },
+  golpe_aplastante: { name: 'Golpe Aplastante', category: 'blunt', proficiencyRequired: 0, cooldown: 3.5, behavior: 'single', multiplier: 1.8, range: 2, halfAngle: Math.PI / 4, stunChance: 0.35, stunDuration: 1 },
+  barrido: { name: 'Barrido', category: 'blunt', proficiencyRequired: 500, cooldown: 3, behavior: 'line', multiplier: 1.2, range: 3.5, halfWidth: 1.2 },
+  embiste_certero: { name: 'Embiste Certero', category: 'thrust', proficiencyRequired: 0, cooldown: 1, behavior: 'single', multiplier: 1.4, range: 3.2, halfAngle: Math.PI / 6 },
+  combo_trueno: { name: 'Combo Trueno', category: 'thrust', proficiencyRequired: 1500, cooldown: 4, behavior: 'comboChain', comboMultipliers: [0.6, 0.6, 0.8], comboWindow: 1.2, range: 3, halfAngle: Math.PI / 6 },
 };
 
 const PRE_MOTION_DURATION = 0.4;
-
 const _comboChainState = {};
 
 function _getEquippedWeaponCategory() {
@@ -88,9 +56,7 @@ function _getProficiency(category) {
 }
 
 function _getSkillsForCategory(category) {
-  return Object.entries(SWORD_SKILL_DATABASE)
-    .filter(([, skill]) => skill.category === category)
-    .map(([id, skill]) => ({ id, ...skill }));
+  return Object.entries(SWORD_SKILL_DATABASE).filter(([, skill]) => skill.category === category).map(([id, skill]) => ({ id, ...skill }));
 }
 
 function checkProficiencyUnlocks(category, silent = false) {
@@ -104,9 +70,7 @@ function checkProficiencyUnlocks(category, silent = false) {
   game.refs.playerCombat.unlockedSkillIds = nowUnlocked;
 
   if (!silent) {
-    newlyUnlocked.forEach((id) => {
-      showNotification(`¡Nueva sword skill: ${SWORD_SKILL_DATABASE[id].name}!`, 'skill');
-    });
+    newlyUnlocked.forEach((id) => showNotification(`¡Nueva sword skill: ${SWORD_SKILL_DATABASE[id].name}!`, 'skill'));
   }
 
   refreshSkillButtons();
@@ -180,20 +144,14 @@ function _rollEnemyDropTable(enemy) {
     if (Math.random() > drop.chance) return;
     const qty = Math.floor(Math.random() * (drop.maxQty - drop.minQty + 1)) + drop.minQty;
     const result = addItem(drop.itemId, qty);
-    if (result.added > 0) {
-      const itemData = ITEM_DATABASE[drop.itemId];
-      showNotification(`+${result.added} ${itemData.name}`, 'loot');
-    }
+    if (result.added > 0) showNotification(`+${result.added} ${ITEM_DATABASE[drop.itemId].name}`, 'loot');
   });
 }
 
 function _applySkillDamage(enemy, skill, multiplierOverride) {
   const mult = multiplierOverride != null ? multiplierOverride : skill.multiplier;
   _dealDamageToEnemy(enemy, getEffectiveStats().attack * mult, skill.category);
-
-  if (skill.stunChance && Math.random() < skill.stunChance) {
-    _applyStunToEnemy(enemy, skill.stunDuration);
-  }
+  if (skill.stunChance && Math.random() < skill.stunChance) _applyStunToEnemy(enemy, skill.stunDuration);
 }
 
 function performBasicAttack() {
@@ -234,10 +192,8 @@ function startSkillPreMotion(skillId) {
 function releaseSkillPreMotion(skillId) {
   const pc = game.refs.playerCombat;
   if (pc.preMotionSkillId !== skillId) return;
-
   const held = performance.now() / 1000 - pc.preMotionStartAt;
   pc.preMotionSkillId = null;
-
   if (held >= PRE_MOTION_DURATION) executeSwordSkill(skillId);
 }
 
@@ -281,9 +237,7 @@ function _executeLineSkill(skill) {
     const dz = enemy.mesh.position.z - playerPos.z;
     const forwardDist = dx * forward.x + dz * forward.z;
     const lateralDist = Math.abs(dx * rightX + dz * rightZ);
-    if (forwardDist >= 0 && forwardDist <= skill.range && lateralDist <= skill.halfWidth) {
-      _applySkillDamage(enemy, skill);
-    }
+    if (forwardDist >= 0 && forwardDist <= skill.range && lateralDist <= skill.halfWidth) _applySkillDamage(enemy, skill);
   });
 }
 
@@ -335,16 +289,32 @@ function _executeComboChainSkill(skillId, skill) {
   }
 }
 
-function enemyAttackPlayer(enemy) {
+// damageMultiplier: usado por ataques de área de jefe (ver enemies.js) sin duplicar la lógica.
+function enemyAttackPlayer(enemy, damageMultiplier = 1) {
   const now = performance.now() / 1000;
   if (now < game.refs.playerCombat.invulnerableUntil) return;
 
   const effective = getEffectiveStats();
-  const baseDamage = Math.max(1, enemy.stats.attack - effective.defense);
+  const baseDamage = Math.max(1, enemy.stats.attack * damageMultiplier - effective.defense);
   const finalDamage = game.refs.playerCombat.isBlocking
     ? baseDamage * (1 - COMBAT_CONFIG.blockDamageReduction)
     : baseDamage;
   applyDamageToPlayer(finalDamage);
+
+  const enemyData = ENEMY_DATABASE[enemy.type];
+  if (enemyData && enemyData.onHitEffect) {
+    applyTimedBuff(enemyData.onHitEffect.statAffected, enemyData.onHitEffect.modifier, enemyData.onHitEffect.durationMs);
+  }
+}
+
+// Golpe que ignora el bloqueo por completo (solo fase 3 del jefe final). Esquivar SÍ lo evita.
+function dealUnblockableDamageToPlayer(enemy, damageMultiplier = 1) {
+  const now = performance.now() / 1000;
+  if (now < game.refs.playerCombat.invulnerableUntil) return;
+
+  const effective = getEffectiveStats();
+  const damage = Math.max(1, Math.round(enemy.stats.attack * damageMultiplier - effective.defense));
+  applyDamageToPlayer(damage);
 }
 
 function applyDamageToPlayer(amount) {
@@ -356,13 +326,8 @@ function applyDamageToPlayer(amount) {
 }
 
 function _setupCombatButtons() {
-  document.getElementById('attack-btn').addEventListener('touchstart', (e) => {
-    e.preventDefault(); performBasicAttack();
-  }, { passive: false });
-
-  document.getElementById('dodge-btn').addEventListener('touchstart', (e) => {
-    e.preventDefault(); performDodge();
-  }, { passive: false });
+  document.getElementById('attack-btn').addEventListener('touchstart', (e) => { e.preventDefault(); performBasicAttack(); }, { passive: false });
+  document.getElementById('dodge-btn').addEventListener('touchstart', (e) => { e.preventDefault(); performDodge(); }, { passive: false });
 
   const blockBtn = document.getElementById('block-btn');
   blockBtn.addEventListener('touchstart', (e) => { e.preventDefault(); startBlock(); }, { passive: false });
