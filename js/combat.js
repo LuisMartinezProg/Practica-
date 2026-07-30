@@ -63,7 +63,7 @@ const _comboChainState = {};
 
 function _getEquippedWeaponCategory() {
   const weapon = game.state.player.equipped.weapon;
-  if (!weapon) return 'blunt'; // sin arma: puños
+  if (!weapon) return 'blunt';
   const item = ITEM_DATABASE[weapon.itemId];
   return item && item.damageCategory ? item.damageCategory : 'blunt';
 }
@@ -152,7 +152,7 @@ function _dealDamageToEnemy(enemy, baseAttack, category) {
 
   enemy.stats.hp -= damage;
   game.state.playerStats.totalDamageDealt += damage;
-  damageEquippedWeapon(); // desgaste del arma equipada
+  damageEquippedWeapon();
 
   showDamageNumber(enemy.mesh.position, damage);
 
@@ -350,7 +350,7 @@ function enemyAttackPlayer(enemy) {
 function applyDamageToPlayer(amount) {
   const stats = game.state.player.stats;
   stats.hp = Math.max(0, stats.hp - Math.round(amount));
-  damageEquippedArmor(); // desgaste de la armadura equipada
+  damageEquippedArmor();
   showNotification(`-${Math.round(amount)} HP`, 'damage');
   if (stats.hp <= 0) handlePlayerDeath();
 }
