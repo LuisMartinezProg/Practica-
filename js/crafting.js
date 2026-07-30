@@ -1,52 +1,17 @@
 // Crafteo de items nuevos y reparación del equipo actualmente puesto.
-// Reparar SOLO aplica al arma/armadura equipada (el inventario no trackea durabilidad individual).
-// Sin materiales de piso 2+ todavía (Hito 6): todas las recetas usan piel/colmillo de lobo por ahora;
-// las de tier superior se agregan como entradas nuevas cuando lleguen esos materiales.
+// Sin recetas nuevas en este hito: los materiales de pisos 2-8 quedan listos para cuando se amplíe.
 
 const RECIPE_DATABASE = {
-  craft_potion_medium: {
-    resultItemId: 'potion_health_medium', type: 'craft',
-    materials: [{ itemId: 'material_wolf_pelt', quantity: 2 }],
-    category: null, tier: 'common',
-  },
-  craft_sword_tempered: {
-    resultItemId: 'sword_tempered', type: 'craft',
-    materials: [{ itemId: 'material_wolf_pelt', quantity: 8 }, { itemId: 'material_wolf_fang', quantity: 5 }],
-    category: 'slashing', tier: 'rare',
-  },
-  craft_armor_iron: {
-    resultItemId: 'armor_iron', type: 'craft',
-    materials: [{ itemId: 'material_wolf_pelt', quantity: 6 }, { itemId: 'material_wolf_fang', quantity: 6 }],
-    category: null, tier: 'rare',
-  },
-  repair_sword_iron: {
-    resultItemId: 'sword_iron', type: 'repair',
-    materials: [{ itemId: 'material_wolf_pelt', quantity: 2 }],
-  },
-  repair_sword_tempered: {
-    resultItemId: 'sword_tempered', type: 'repair',
-    materials: [{ itemId: 'material_wolf_pelt', quantity: 3 }, { itemId: 'material_wolf_fang', quantity: 2 }],
-  },
-  repair_dagger_swift: {
-    resultItemId: 'dagger_swift', type: 'repair',
-    materials: [{ itemId: 'material_wolf_fang', quantity: 2 }],
-  },
-  repair_axe_battle: {
-    resultItemId: 'axe_battle', type: 'repair',
-    materials: [{ itemId: 'material_wolf_pelt', quantity: 2 }],
-  },
-  repair_spear_guard: {
-    resultItemId: 'spear_guard', type: 'repair',
-    materials: [{ itemId: 'material_wolf_pelt', quantity: 1 }, { itemId: 'material_wolf_fang', quantity: 1 }],
-  },
-  repair_armor_leather: {
-    resultItemId: 'armor_leather', type: 'repair',
-    materials: [{ itemId: 'material_wolf_pelt', quantity: 2 }],
-  },
-  repair_armor_iron: {
-    resultItemId: 'armor_iron', type: 'repair',
-    materials: [{ itemId: 'material_wolf_pelt', quantity: 3 }, { itemId: 'material_wolf_fang', quantity: 2 }],
-  },
+  craft_potion_medium: { resultItemId: 'potion_health_medium', type: 'craft', materials: [{ itemId: 'material_wolf_pelt', quantity: 2 }], category: null, tier: 'common' },
+  craft_sword_tempered: { resultItemId: 'sword_tempered', type: 'craft', materials: [{ itemId: 'material_wolf_pelt', quantity: 8 }, { itemId: 'material_wolf_fang', quantity: 5 }], category: 'slashing', tier: 'rare' },
+  craft_armor_iron: { resultItemId: 'armor_iron', type: 'craft', materials: [{ itemId: 'material_wolf_pelt', quantity: 6 }, { itemId: 'material_wolf_fang', quantity: 6 }], category: null, tier: 'rare' },
+  repair_sword_iron: { resultItemId: 'sword_iron', type: 'repair', materials: [{ itemId: 'material_wolf_pelt', quantity: 2 }] },
+  repair_sword_tempered: { resultItemId: 'sword_tempered', type: 'repair', materials: [{ itemId: 'material_wolf_pelt', quantity: 3 }, { itemId: 'material_wolf_fang', quantity: 2 }] },
+  repair_dagger_swift: { resultItemId: 'dagger_swift', type: 'repair', materials: [{ itemId: 'material_wolf_fang', quantity: 2 }] },
+  repair_axe_battle: { resultItemId: 'axe_battle', type: 'repair', materials: [{ itemId: 'material_wolf_pelt', quantity: 2 }] },
+  repair_spear_guard: { resultItemId: 'spear_guard', type: 'repair', materials: [{ itemId: 'material_wolf_pelt', quantity: 1 }, { itemId: 'material_wolf_fang', quantity: 1 }] },
+  repair_armor_leather: { resultItemId: 'armor_leather', type: 'repair', materials: [{ itemId: 'material_wolf_pelt', quantity: 2 }] },
+  repair_armor_iron: { resultItemId: 'armor_iron', type: 'repair', materials: [{ itemId: 'material_wolf_pelt', quantity: 3 }, { itemId: 'material_wolf_fang', quantity: 2 }] },
 };
 
 function _getSlotForItem(itemId) {
@@ -58,9 +23,7 @@ function _getSlotForItem(itemId) {
 }
 
 function _getTotalQuantity(itemId) {
-  return game.state.inventory
-    .filter((e) => e.itemId === itemId)
-    .reduce((sum, e) => sum + e.quantity, 0);
+  return game.state.inventory.filter((e) => e.itemId === itemId).reduce((sum, e) => sum + e.quantity, 0);
 }
 
 function canCraft(recipeId) {
@@ -104,30 +67,19 @@ function craft(recipeId) {
 function _getRepairRecipeForEquippedSlot(slot) {
   const equipped = game.state.player.equipped[slot];
   if (!equipped) return null;
-  const entry = Object.entries(RECIPE_DATABASE).find(
-    ([, r]) => r.type === 'repair' && r.resultItemId === equipped.itemId
-  );
+  const entry = Object.entries(RECIPE_DATABASE).find(([, r]) => r.type === 'repair' && r.resultItemId === equipped.itemId);
   return entry ? entry[0] : null;
 }
 
 function initCrafting() {
-  document.getElementById('crafting-toggle-btn').addEventListener('touchstart', (e) => {
-    e.preventDefault();
-    toggleCrafting();
-  }, { passive: false });
-
+  document.getElementById('crafting-toggle-btn').addEventListener('touchstart', (e) => { e.preventDefault(); toggleCrafting(); }, { passive: false });
   document.getElementById('crafting-close-btn').addEventListener('click', closeCrafting);
-
   refreshCraftingUI();
 }
 
 function toggleCrafting() {
   const overlay = document.getElementById('crafting-overlay');
-  if (overlay.classList.contains('hidden')) {
-    openCrafting();
-  } else {
-    closeCrafting();
-  }
+  if (overlay.classList.contains('hidden')) openCrafting(); else closeCrafting();
 }
 
 function openCrafting() {
@@ -153,9 +105,7 @@ function refreshCraftingUI() {
   });
 
   Object.keys(RECIPE_DATABASE).forEach((recipeId) => {
-    if (RECIPE_DATABASE[recipeId].type === 'craft') {
-      list.appendChild(_buildRecipeRow(recipeId));
-    }
+    if (RECIPE_DATABASE[recipeId].type === 'craft') list.appendChild(_buildRecipeRow(recipeId));
   });
 }
 
