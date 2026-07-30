@@ -38,7 +38,8 @@ function startGame() {
   _gameInitialized = true;
 
   initThree();
-  buildZone(game.state.currentZone); // world.js
+  initWorld();                        // world.js — registra el chequeo de portales
+  buildZone(game.state.currentZone);
   initPlayer();                       // player.js
   initEnemies();                      // enemies.js
   initCombat();                       // combat.js
