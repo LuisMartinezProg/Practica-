@@ -173,7 +173,11 @@ function removeEnemy(enemy) {
     return;
   }
 
-  setTimeout(() => _spawnEnemy(enemy.type, enemy.spawnPoint.x, enemy.spawnPoint.z, enemy.groupId), 20000);
+  const zoneAtDeath = game.state.currentZone;
+  setTimeout(() => {
+    if (game.state.currentZone !== zoneAtDeath) return; // Hito 8: el jugador ya cambió de piso, no repoblar una zona vieja
+    _spawnEnemy(enemy.type, enemy.spawnPoint.x, enemy.spawnPoint.z, enemy.groupId);
+  }, 20000);
 }
 
 function _syncEnemyStateMirror() {
