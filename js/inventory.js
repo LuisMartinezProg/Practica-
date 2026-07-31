@@ -1,27 +1,29 @@
-// Inventario, equipo y durabilidad. ITEM_DATABASE es la fuente de verdad para todo item.
+// Inventario, equipo y durabilidad. ITEM_DATABASE es la fuente de verdad para todo item,
+// incluyendo buyPrice (base para compra en shop.js y para vender cualquier item al 50%).
 
 const INVENTORY_CONFIG = { maxSlots: 30, maxStack: 99 };
 const DURABILITY_CONFIG = { pointsLostPerHit: 1 };
 
 const ITEM_DATABASE = {
-  sword_iron: { id: 'sword_iron', name: 'Espada de Hierro', type: 'weapon', rarity: 'common', damageCategory: 'slashing', canBlock: true, statBonus: { attack: 5 }, maxDurability: 100 },
-  sword_tempered: { id: 'sword_tempered', name: 'Espada Templada', type: 'weapon', rarity: 'rare', damageCategory: 'slashing', canBlock: true, statBonus: { attack: 9 }, maxDurability: 120 },
-  dagger_swift: { id: 'dagger_swift', name: 'Daga Veloz', type: 'weapon', rarity: 'common', damageCategory: 'piercing', canBlock: false, statBonus: { attack: 3, speed: 1 }, maxDurability: 90 },
-  axe_battle: { id: 'axe_battle', name: 'Hacha de Batalla', type: 'weapon', rarity: 'common', damageCategory: 'blunt', canBlock: true, statBonus: { attack: 7 }, maxDurability: 110 },
-  spear_guard: { id: 'spear_guard', name: 'Lanza de Guardia', type: 'weapon', rarity: 'common', damageCategory: 'thrust', canBlock: true, statBonus: { attack: 6, defense: 2 }, maxDurability: 105 },
-  armor_leather: { id: 'armor_leather', name: 'Armadura de Cuero', type: 'armor', rarity: 'common', statBonus: { defense: 3, maxHp: 10 }, maxDurability: 80 },
-  armor_iron: { id: 'armor_iron', name: 'Armadura de Hierro', type: 'armor', rarity: 'rare', statBonus: { defense: 6, maxHp: 20 }, maxDurability: 120 },
-  material_wolf_pelt: { id: 'material_wolf_pelt', name: 'Piel de Lobo', type: 'material', rarity: 'common' },
-  material_wolf_fang: { id: 'material_wolf_fang', name: 'Colmillo de Lobo', type: 'material', rarity: 'common' },
-  material_stalker_spine: { id: 'material_stalker_spine', name: 'Espina de Acechador', type: 'material', rarity: 'common' },
-  material_golem_core: { id: 'material_golem_core', name: 'Núcleo de Golem', type: 'material', rarity: 'common' },
-  material_ruin_arrowhead: { id: 'material_ruin_arrowhead', name: 'Punta de Flecha en Ruinas', type: 'material', rarity: 'common' },
-  material_ancient_bone: { id: 'material_ancient_bone', name: 'Hueso Antiguo', type: 'material', rarity: 'common' },
-  material_ice_crystal: { id: 'material_ice_crystal', name: 'Cristal de Hielo', type: 'material', rarity: 'common' },
-  material_sentinel_core: { id: 'material_sentinel_core', name: 'Núcleo del Centinela', type: 'material', rarity: 'rare' },
-  material_guardian_heart: { id: 'material_guardian_heart', name: 'Corazón del Guardián', type: 'material', rarity: 'epic' },
-  potion_health_minor: { id: 'potion_health_minor', name: 'Poción de Vida Menor', type: 'consumable', rarity: 'common', healAmount: 40 },
-  potion_health_medium: { id: 'potion_health_medium', name: 'Poción de Vida Mediana', type: 'consumable', rarity: 'common', healAmount: 80 },
+  sword_iron: { id: 'sword_iron', name: 'Espada de Hierro', type: 'weapon', rarity: 'common', damageCategory: 'slashing', canBlock: true, statBonus: { attack: 5 }, maxDurability: 100, buyPrice: 60 },
+  sword_tempered: { id: 'sword_tempered', name: 'Espada Templada', type: 'weapon', rarity: 'rare', damageCategory: 'slashing', canBlock: true, statBonus: { attack: 9 }, maxDurability: 120, buyPrice: 220 },
+  dagger_swift: { id: 'dagger_swift', name: 'Daga Veloz', type: 'weapon', rarity: 'common', damageCategory: 'piercing', canBlock: false, statBonus: { attack: 3, speed: 1 }, maxDurability: 90, buyPrice: 55 },
+  axe_battle: { id: 'axe_battle', name: 'Hacha de Batalla', type: 'weapon', rarity: 'common', damageCategory: 'blunt', canBlock: true, statBonus: { attack: 7 }, maxDurability: 110, buyPrice: 65 },
+  spear_guard: { id: 'spear_guard', name: 'Lanza de Guardia', type: 'weapon', rarity: 'common', damageCategory: 'thrust', canBlock: true, statBonus: { attack: 6, defense: 2 }, maxDurability: 105, buyPrice: 62 },
+  armor_leather: { id: 'armor_leather', name: 'Armadura de Cuero', type: 'armor', rarity: 'common', statBonus: { defense: 3, maxHp: 10 }, maxDurability: 80, buyPrice: 50 },
+  armor_iron: { id: 'armor_iron', name: 'Armadura de Hierro', type: 'armor', rarity: 'rare', statBonus: { defense: 6, maxHp: 20 }, maxDurability: 120, buyPrice: 240 },
+  material_wolf_pelt: { id: 'material_wolf_pelt', name: 'Piel de Lobo', type: 'material', rarity: 'common', buyPrice: 8 },
+  material_wolf_fang: { id: 'material_wolf_fang', name: 'Colmillo de Lobo', type: 'material', rarity: 'common', buyPrice: 10 },
+  material_stalker_spine: { id: 'material_stalker_spine', name: 'Espina de Acechador', type: 'material', rarity: 'common', buyPrice: 12 },
+  material_golem_core: { id: 'material_golem_core', name: 'Núcleo de Golem', type: 'material', rarity: 'common', buyPrice: 18 },
+  material_ruin_arrowhead: { id: 'material_ruin_arrowhead', name: 'Punta de Flecha en Ruinas', type: 'material', rarity: 'common', buyPrice: 14 },
+  material_ancient_bone: { id: 'material_ancient_bone', name: 'Hueso Antiguo', type: 'material', rarity: 'common', buyPrice: 16 },
+  material_ice_crystal: { id: 'material_ice_crystal', name: 'Cristal de Hielo', type: 'material', rarity: 'common', buyPrice: 20 },
+  material_sentinel_core: { id: 'material_sentinel_core', name: 'Núcleo del Centinela', type: 'material', rarity: 'rare', buyPrice: 80 },
+  material_guardian_heart: { id: 'material_guardian_heart', name: 'Corazón del Guardián', type: 'material', rarity: 'epic' }, // trofeo único: sin precio, no se compra ni se vende
+  potion_health_minor: { id: 'potion_health_minor', name: 'Poción de Vida Menor', type: 'consumable', rarity: 'common', healAmount: 40, buyPrice: 20 },
+  potion_health_medium: { id: 'potion_health_medium', name: 'Poción de Vida Mediana', type: 'consumable', rarity: 'common', healAmount: 80, buyPrice: 45 },
+  potion_strength: { id: 'potion_strength', name: 'Poción de Fuerza', type: 'consumable', rarity: 'common', buffEffect: { statAffected: 'attack', modifier: 8, durationMs: 30000 }, buyPrice: 35 },
 };
 
 let _pendingItemId = null;
@@ -57,6 +59,7 @@ function addItem(itemId, qty = 1) {
 
   const full = remaining > 0;
   if (full) showNotification(added > 0 ? 'Inventario lleno, no se pudo recoger todo' : 'Inventario lleno', 'warning');
+  if (added > 0) game.emit('itemCollected', { itemId, amount: added });
 
   refreshInventoryUI();
   return { added, full };
@@ -138,6 +141,10 @@ function useItem(itemId) {
     }
     stats.hp = Math.min(maxHp, stats.hp + itemData.healAmount);
     showNotification(`+${itemData.healAmount} HP (${itemData.name})`, 'heal');
+  } else if (itemData.buffEffect) {
+    const eff = itemData.buffEffect;
+    applyTimedBuff(eff.statAffected, eff.modifier, eff.durationMs);
+    showNotification(`${itemData.name}: +${eff.modifier} ${eff.statAffected} por ${Math.round(eff.durationMs / 1000)}s`, 'heal');
   }
 
   removeItem(itemId, 1);
@@ -184,6 +191,8 @@ function toggleInventory() {
 function openInventory() {
   if (typeof closeCrafting === 'function') closeCrafting();
   if (typeof closeSettings === 'function') closeSettings();
+  if (typeof closeProgress === 'function') closeProgress();
+  if (typeof closeShop === 'function') closeShop();
   game.refs.uiState.modalOpen = true;
   document.getElementById('inventory-overlay').classList.remove('hidden');
   refreshInventoryUI();
