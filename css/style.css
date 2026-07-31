@@ -63,6 +63,13 @@ html, body {
 #inventory-toggle-btn { width: 56px; height: 56px; top: 16px; right: 16px; bottom: auto; left: auto; background: rgba(180, 140, 60, 0.35); font-size: 1.4rem; }
 #crafting-toggle-btn { width: 56px; height: 56px; top: 80px; right: 16px; bottom: auto; left: auto; background: rgba(140, 100, 200, 0.35); font-size: 1.3rem; }
 #settings-toggle-btn { width: 56px; height: 56px; top: 144px; right: 16px; bottom: auto; left: auto; background: rgba(120, 120, 120, 0.35); font-size: 1.3rem; }
+#progress-toggle-btn { width: 56px; height: 56px; top: 208px; right: 16px; bottom: auto; left: auto; background: rgba(80, 160, 170, 0.35); font-size: 1.3rem; }
+
+#vendor-interact-btn {
+  width: auto; height: 44px; padding: 0 20px; border-radius: 22px;
+  left: 50%; bottom: 195px; transform: translateX(-50%);
+  background: rgba(201, 162, 75, 0.55); font-size: 0.85rem;
+}
 
 #hud {
   position: fixed; top: 16px; left: 16px; z-index: 10; width: 200px;
@@ -84,6 +91,12 @@ html, body {
   background: rgba(180, 60, 200, 0.5); font-size: 0.7rem; display: inline-block;
 }
 
+#buffs-container { margin-top: 6px; display: flex; flex-direction: column; gap: 4px; }
+.buff-icon {
+  padding: 3px 8px; border-radius: 6px; background: rgba(76, 208, 120, 0.5);
+  font-size: 0.68rem; display: inline-block; width: fit-content;
+}
+
 #notification-container {
   position: fixed; top: 16px; left: 50%; transform: translateX(-50%); z-index: 50;
   display: flex; flex-direction: column; align-items: center; gap: 8px; pointer-events: none;
@@ -103,6 +116,9 @@ html, body {
 .notification-zone { background: rgba(80, 160, 170, 0.95); font-weight: 700; }
 .notification-boss { background: rgba(200, 60, 60, 0.95); font-weight: 700; }
 .notification-loot { background: rgba(0,0,0,0.6); font-size: 0.75rem; }
+.notification-quest { background: rgba(90, 170, 220, 0.95); color: #0a1a25; font-weight: 700; }
+.notification-achievement { background: rgba(255, 215, 100, 0.95); color: #2a1d00; font-weight: 700; }
+.notification-shop { background: rgba(180, 150, 90, 0.95); color: #2a1d00; font-weight: 700; }
 
 #damage-number-container { position: fixed; inset: 0; z-index: 25; pointer-events: none; }
 .damage-number {
@@ -113,14 +129,8 @@ html, body {
 .damage-number.rising { transform: translate(-50%, -40px); opacity: 1; }
 
 /* ---- Inventario ---- */
-#inventory-overlay {
-  position: fixed; inset: 0; z-index: 35; background: rgba(0, 0, 0, 0.6);
-  display: flex; align-items: center; justify-content: center; padding: 16px;
-}
-#inventory-panel {
-  width: 100%; max-width: 420px; max-height: 85vh; background: #1b2434; border-radius: 14px;
-  color: #fff; display: flex; flex-direction: column; overflow: hidden;
-}
+#inventory-overlay { position: fixed; inset: 0; z-index: 35; background: rgba(0, 0, 0, 0.6); display: flex; align-items: center; justify-content: center; padding: 16px; }
+#inventory-panel { width: 100%; max-width: 420px; max-height: 85vh; background: #1b2434; border-radius: 14px; color: #fff; display: flex; flex-direction: column; overflow: hidden; }
 #inventory-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; background: rgba(255,255,255,0.06); font-weight: 700; }
 #inventory-close-btn { font-size: 1.2rem; opacity: 0.8; padding: 0 6px; }
 #equipped-section { display: flex; gap: 10px; padding: 12px 16px; border-bottom: 1px solid rgba(255,255,255,0.08); }
@@ -178,6 +188,49 @@ html, body {
 #settings-sensitivity-slider { width: 100%; }
 #settings-save-btn { margin: 4px 18px 0; padding: 10px; border-radius: 8px; border: none; background: #3b6fa0; color: #fff; font-weight: 600; width: calc(100% - 36px); }
 
+/* ---- Progreso (quests/logros/bestiario/stats) ---- */
+#progress-overlay { position: fixed; inset: 0; z-index: 35; background: rgba(0, 0, 0, 0.6); display: flex; align-items: center; justify-content: center; padding: 16px; }
+#progress-panel { width: 100%; max-width: 420px; max-height: 85vh; background: #1b2434; border-radius: 14px; color: #fff; display: flex; flex-direction: column; overflow: hidden; }
+#progress-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; background: rgba(255,255,255,0.06); font-weight: 700; }
+#progress-close-btn { font-size: 1.2rem; opacity: 0.8; padding: 0 6px; }
+#progress-tabs { display: flex; border-bottom: 1px solid rgba(255,255,255,0.08); }
+.progress-tab-btn { flex: 1; padding: 10px 4px; background: none; border: none; color: rgba(255,255,255,0.55); font-size: 0.72rem; font-weight: 600; }
+.progress-tab-btn.active { color: #fff; border-bottom: 2px solid #4cd0e0; }
+.progress-tab-content { padding: 12px 16px; overflow-y: auto; max-height: 55vh; display: flex; flex-direction: column; gap: 10px; }
+.progress-empty { opacity: 0.5; font-size: 0.85rem; text-align: center; padding: 20px 0; }
+
+.quest-row { background: rgba(255,255,255,0.05); border-radius: 10px; padding: 10px 12px; }
+.quest-row-title { font-weight: 700; font-size: 0.88rem; margin-bottom: 3px; }
+.quest-row-desc { font-size: 0.72rem; opacity: 0.7; margin-bottom: 6px; }
+.quest-row-progress-bg { height: 8px; background: rgba(255,255,255,0.12); border-radius: 5px; overflow: hidden; }
+.quest-row-progress-fill { height: 100%; background: #4cd0e0; transition: width 0.2s ease-out; }
+.quest-row-progress-text { font-size: 0.68rem; opacity: 0.75; margin-top: 3px; text-align: right; }
+
+.achievement-row { background: rgba(255,255,255,0.05); border-radius: 10px; padding: 10px 12px; }
+.achievement-row.locked { opacity: 0.45; }
+.achievement-row-title { font-weight: 700; font-size: 0.88rem; margin-bottom: 3px; }
+.achievement-row-desc { font-size: 0.72rem; opacity: 0.75; }
+
+.bestiary-row { background: rgba(255,255,255,0.05); border-radius: 10px; padding: 10px 12px; }
+.bestiary-row-name { font-weight: 700; font-size: 0.88rem; }
+.bestiary-row-count { font-weight: 400; opacity: 0.6; font-size: 0.72rem; }
+.bestiary-row-stats, .bestiary-row-resist { font-size: 0.72rem; opacity: 0.7; margin-top: 2px; }
+
+.stats-row { display: flex; justify-content: space-between; padding: 6px 0; font-size: 0.85rem; border-bottom: 1px solid rgba(255,255,255,0.06); }
+
+/* ---- Tienda ---- */
+#shop-overlay { position: fixed; inset: 0; z-index: 35; background: rgba(0, 0, 0, 0.6); display: flex; align-items: center; justify-content: center; padding: 16px; }
+#shop-panel { width: 100%; max-width: 460px; max-height: 85vh; background: #1b2434; border-radius: 14px; color: #fff; display: flex; flex-direction: column; overflow: hidden; }
+#shop-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; background: rgba(255,255,255,0.06); font-weight: 700; gap: 10px; }
+#shop-currency-display { color: #f2c94c; font-size: 0.85rem; }
+#shop-close-btn { font-size: 1.2rem; opacity: 0.8; padding: 0 6px; }
+#shop-columns { display: flex; gap: 1px; background: rgba(255,255,255,0.08); overflow: hidden; }
+#shop-buy-column, #shop-sell-column { flex: 1; padding: 10px 12px; overflow-y: auto; max-height: 60vh; background: #1b2434; }
+.shop-column-title { font-weight: 700; font-size: 0.78rem; opacity: 0.7; margin-bottom: 8px; text-transform: uppercase; }
+.shop-row { display: flex; flex-direction: column; gap: 4px; background: rgba(255,255,255,0.05); border-radius: 8px; padding: 8px 10px; margin-bottom: 8px; font-size: 0.72rem; }
+.shop-row button { padding: 6px; border-radius: 6px; border: none; background: rgba(120, 200, 140, 0.35); color: #fff; font-size: 0.72rem; font-weight: 600; }
+.shop-row button:disabled { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.35); }
+
 /* ---- Confirmación ---- */
 #confirm-overlay { position: fixed; inset: 0; z-index: 45; background: rgba(0,0,0,0.65); display: flex; align-items: center; justify-content: center; padding: 24px; }
 #confirm-panel { background: #1b2434; border-radius: 14px; padding: 20px; width: 100%; max-width: 320px; color: #fff; text-align: center; }
@@ -202,9 +255,6 @@ html, body {
 #menu-main-screen, #menu-difficulty-screen { display: flex; flex-direction: column; align-items: center; gap: 20px; }
 #menu-title { font-size: 1.8rem; letter-spacing: 0.05em; }
 #menu-difficulty-screen h2 { font-size: 1.3rem; }
-#menu-overlay button {
-  font-size: 1.1rem; padding: 14px 40px; border-radius: 8px; border: none;
-  background: #3b6fa0; color: #fff; font-weight: 600; width: 220px;
-}
+#menu-overlay button { font-size: 1.1rem; padding: 14px 40px; border-radius: 8px; border: none; background: #3b6fa0; color: #fff; font-weight: 600; width: 220px; }
 #menu-overlay button:active { background: #2c5680; }
 #btn-menu-settings, #btn-difficulty-back { background: rgba(255,255,255,0.12); }
