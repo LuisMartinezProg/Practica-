@@ -48,6 +48,7 @@ const game = {
     currentObstacles: [],
     zoneBounds: null,
     currentPortalMesh: null,
+    currentVendorMesh: null,
     currentEnemies: [],
     activeProjectiles: [],
     playerCombat: {
