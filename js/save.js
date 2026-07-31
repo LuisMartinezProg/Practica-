@@ -1,6 +1,5 @@
 // Guardado y carga. game.state se persiste en localStorage; game.refs NUNCA se guarda.
-// achievements se guarda en una clave aparte porque persiste aunque se empiece Nueva Partida
-// (es un logro del jugador-perfil, no del personaje actual — ver README 4.11).
+// achievements se guarda en clave separada porque persiste aunque se empiece Nueva Partida.
 
 const SAVE_KEY = 'sao_save';
 const ACHIEVEMENTS_KEY = 'sao_achievements';
