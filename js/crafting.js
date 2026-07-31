@@ -1,3 +1,4 @@
+
 // Crafteo de items nuevos y reparación del equipo actualmente puesto.
 
 const RECIPE_DATABASE = {
@@ -59,6 +60,7 @@ function craft(recipeId) {
   }
 
   playSound('craft');
+  game.emit('itemCrafted', { recipeId });
   refreshInventoryUI();
   refreshCraftingUI();
   return true;
@@ -85,6 +87,8 @@ function toggleCrafting() {
 function openCrafting() {
   if (typeof closeInventory === 'function') closeInventory();
   if (typeof closeSettings === 'function') closeSettings();
+  if (typeof closeProgress === 'function') closeProgress();
+  if (typeof closeShop === 'function') closeShop();
   game.refs.uiState.modalOpen = true;
   document.getElementById('crafting-overlay').classList.remove('hidden');
   refreshCraftingUI();
