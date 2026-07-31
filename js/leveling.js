@@ -1,4 +1,4 @@
-// Niveles, stats derivados, XP y buffs temporales (activeBuffs).
+// Niveles, stats derivados, XP y buffs temporales (activeBuffs), con su UI de íconos+timer.
 
 function _recalculateStatsForLevel(level) {
   const stats = game.state.player.stats;
@@ -68,4 +68,29 @@ function applyTimedBuff(statAffected, modifier, durationMs) {
 function _pruneExpiredBuffs() {
   const now = Date.now();
   game.state.player.activeBuffs = game.state.player.activeBuffs.filter((b) => b.expiresAt > now);
+}
+
+function _renderBuffIcons() {
+  const container = document.getElementById('buffs-container');
+  if (!container) return;
+  container.innerHTML = '';
+
+  const now = Date.now();
+  game.state.player.activeBuffs.forEach((buff) => {
+    const secondsLeft = Math.max(0, Math.ceil((buff.expiresAt - now) / 1000));
+    const sign = buff.modifier >= 0 ? '+' : '';
+    const el = document.createElement('div');
+    el.className = 'buff-icon';
+    el.textContent = `${sign}${buff.modifier} ${buff.statAffected} (${secondsLeft}s)`;
+    container.appendChild(el);
+  });
+}
+
+function updateBuffs(delta) {
+  _pruneExpiredBuffs();
+  _renderBuffIcons();
+}
+
+function initLeveling() {
+  game.registerSystem(updateBuffs);
 }
