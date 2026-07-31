@@ -45,6 +45,12 @@ function startGame() {
   initCombat();
   initInventory();
   initCrafting();
+  initLeveling();
+  initQuests();
+  initAchievements();
+  initBestiary();
+  initStatsTracker();
+  initShop();
   initUI();
   initSave();
 
