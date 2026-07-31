@@ -119,6 +119,7 @@ html, body {
 .notification-quest { background: rgba(90, 170, 220, 0.95); color: #0a1a25; font-weight: 700; }
 .notification-achievement { background: rgba(255, 215, 100, 0.95); color: #2a1d00; font-weight: 700; }
 .notification-shop { background: rgba(180, 150, 90, 0.95); color: #2a1d00; font-weight: 700; }
+.notification-heal { background: rgba(76, 208, 120, 0.95); color: #0a2510; font-weight: 700; }
 
 #damage-number-container { position: fixed; inset: 0; z-index: 25; pointer-events: none; }
 .damage-number {
