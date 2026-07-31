@@ -1,5 +1,4 @@
 // Movimiento, cámara en 3ra persona, joystick táctil (con sensibilidad configurable), esquiva y bloqueo.
-// Respeta multiplicador de velocidad de zona (piso 6) y desnivel de terreno (pisos 4 y 7).
 
 const PLAYER_CONFIG = {
   rotationLerpSpeed: 10,
