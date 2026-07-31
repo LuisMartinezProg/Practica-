@@ -1,6 +1,4 @@
 // Web Audio API nativa: sonidos sintéticos con osciladores, sin archivos externos.
-// playSound(soundId) es la única función pública; combat.js/leveling.js/crafting.js/etc.
-// la llaman sin saber cómo se genera el sonido.
 
 let _audioCtx = null;
 
@@ -21,6 +19,9 @@ const SOUND_DATABASE = {
   craft: { freq: 440, duration: 0.12, type: 'triangle', gain: 0.15 },
   zoneTransition: { freq: 330, duration: 0.4, type: 'sine', gain: 0.15 },
   levelup: { chord: [523, 659, 784], duration: 0.5, type: 'sine', gain: 0.15 },
+  questComplete: { freq: 587, duration: 0.3, type: 'sine', gain: 0.15 },
+  achievementUnlock: { chord: [440, 554, 659, 880], duration: 0.6, type: 'sine', gain: 0.15 },
+  shopTransaction: { freq: 800, duration: 0.08, type: 'square', gain: 0.12 },
 };
 
 function playSound(soundId) {
