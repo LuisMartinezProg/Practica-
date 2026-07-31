@@ -1,4 +1,5 @@
-// Construcción de zonas: los 8 pisos, transición por portal, terreno con desnivel donde aplica.
+// Construcción de zonas: los 8 pisos, transición por portal, terreno con desnivel donde aplica,
+// y NPC vendedor por piso (geometría básica, la lógica de interacción vive en shop.js).
 
 const ZONE_DATABASE = {
   zone_1: {
@@ -18,6 +19,7 @@ const ZONE_DATABASE = {
       { type: 'wolf', x: -8, z: -4 },
       { type: 'wolf', x: 12, z: -10 },
     ],
+    vendorPosition: { x: -15, z: 0 },
     portalPosition: { x: 0, z: -42 }, nextZone: 'zone_2',
   },
 
@@ -36,6 +38,7 @@ const ZONE_DATABASE = {
       { type: 'acechador_matorral', x: 8, z: -18 }, { type: 'acechador_matorral', x: -6, z: -30 },
     ],
     entryPoint: { x: 0, z: 40 },
+    vendorPosition: { x: -12, z: 20 },
     portalPosition: { x: 0, z: -38 }, nextZone: 'zone_3',
   },
 
@@ -55,6 +58,7 @@ const ZONE_DATABASE = {
       { type: 'golem_piedra', x: 0, z: 10 }, { type: 'golem_piedra', x: 0, z: 2 }, { type: 'golem_piedra', x: 0, z: -6 },
     ],
     entryPoint: { x: 0, z: 26 },
+    vendorPosition: { x: -8, z: 22 },
     portalPosition: { x: 0, z: -26 }, nextZone: 'zone_4',
   },
 
@@ -79,6 +83,7 @@ const ZONE_DATABASE = {
       { type: 'arquero_ruinas', x: 25, z: 6 }, { type: 'arquero_ruinas', x: 23, z: -8 },
     ],
     entryPoint: { x: -20, z: 0 },
+    vendorPosition: { x: -25, z: -20 },
     portalPosition: { x: 27, z: 0 }, nextZone: 'zone_5',
   },
 
@@ -99,6 +104,7 @@ const ZONE_DATABASE = {
       { type: 'skeleton_healer', x: 8, z: -10, groupId: 'patrol_b' },
     ],
     entryPoint: { x: 0, z: 38 },
+    vendorPosition: { x: 14, z: 30 },
     portalPosition: { x: 0, z: -36 }, nextZone: 'zone_6',
   },
 
@@ -116,6 +122,7 @@ const ZONE_DATABASE = {
       { type: 'elemental_hielo', x: 8, z: 6 }, { type: 'elemental_hielo', x: -8, z: -4 }, { type: 'elemental_hielo', x: 4, z: -20 },
     ],
     entryPoint: { x: 0, z: 42 },
+    vendorPosition: { x: -14, z: 30 },
     portalPosition: { x: 0, z: -40 }, nextZone: 'zone_7',
   },
 
@@ -137,6 +144,7 @@ const ZONE_DATABASE = {
     ],
     enemySpawns: [{ type: 'centinela_torre', x: 0, z: 12 }],
     entryPoint: { x: 0, z: -24 },
+    vendorPosition: { x: 8, z: -28 },
     portalPosition: { x: 0, z: 15 }, nextZone: 'zone_8',
     requiresBossDefeated: 'centinela_torre',
   },
@@ -150,6 +158,7 @@ const ZONE_DATABASE = {
     ],
     enemySpawns: [{ type: 'guardian_cima', x: 0, z: -6 }],
     entryPoint: { x: 0, z: 16 },
+    // sin vendorPosition: sala del jefe final, sin sentido temático ni espacio libre suficiente
   },
 };
 
@@ -262,6 +271,16 @@ function _makePortal() {
   return group;
 }
 
+function _makeVendorMesh() {
+  const group = new THREE.Group();
+  const robe = new THREE.Mesh(new THREE.ConeGeometry(0.4, 1.2, 8), new THREE.MeshLambertMaterial({ color: 0xc9a24b }));
+  robe.position.y = 0.6;
+  const head = new THREE.Mesh(new THREE.SphereGeometry(0.26, 10, 8), new THREE.MeshLambertMaterial({ color: 0xe0b088 }));
+  head.position.y = 1.35;
+  group.add(robe, head);
+  return group;
+}
+
 function buildZone(zoneId) {
   const zoneData = ZONE_DATABASE[zoneId];
   if (!zoneData) { console.error(`buildZone: zona desconocida "${zoneId}"`); return; }
@@ -306,6 +325,15 @@ function buildZone(zoneId) {
     game.refs.currentPortalMesh = portal;
   }
 
+  game.refs.currentVendorMesh = null;
+  if (zoneData.vendorPosition) {
+    const vendor = _makeVendorMesh();
+    const groundY = zoneData.heightProfile ? getGroundHeight(zoneId, zoneData.vendorPosition.x, zoneData.vendorPosition.z) : 0;
+    vendor.position.set(zoneData.vendorPosition.x, groundY, zoneData.vendorPosition.z);
+    scene.add(vendor);
+    game.refs.currentVendorMesh = vendor;
+  }
+
   const half = zoneData.groundSize / 2 - 1;
   game.refs.zoneBounds = zoneData.bounds || { minX: -half, maxX: half, minZ: -half, maxZ: half };
 }
@@ -326,6 +354,7 @@ function transitionToZone(nextZoneId) {
 
   showNotification(`Entraste a: ${ZONE_DATABASE[nextZoneId].name}`, 'zone');
   playSound('zoneTransition');
+  game.emit('zoneEntered', { zoneId: nextZoneId });
   saveGame();
 }
 
