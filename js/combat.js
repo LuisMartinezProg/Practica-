@@ -1,3 +1,4 @@
+
 // Combate: ataque básico, categorías de arma, maestría, sword skills, daño recibido (incluye ataques imbloqueables de jefe).
 
 const COMBAT_CONFIG = {
