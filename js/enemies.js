@@ -118,7 +118,7 @@ function _spawnEnemy(type, x, z, groupId) {
     id: `enemy_${_enemyIdCounter++}`,
     type, mesh, groupId: groupId || null,
     stats: { hp: scaledHp, maxHp: scaledHp, attack: scaledAttack, defense: data.stats.defense },
-    baseAttack: scaledAttack, // referencia para recalcular multiplicadores de fase de jefe (no usar data.stats.attack crudo)
+    baseAttack: scaledAttack,
     resistances: data.resistances,
     moveSpeed: data.moveSpeed,
     detectionRadius: data.detectionRadius,
@@ -165,7 +165,10 @@ function removeEnemy(enemy) {
 
   const data = ENEMY_DATABASE[enemy.type];
   if (data.isBoss) {
-    if (!game.state.defeatedBosses.includes(enemy.type)) game.state.defeatedBosses.push(enemy.type);
+    if (!game.state.defeatedBosses.includes(enemy.type)) {
+      game.state.defeatedBosses.push(enemy.type);
+      game.emit('bossDefeated', { type: enemy.type });
+    }
     if (data.isFinalBoss) triggerVictory();
     return;
   }
