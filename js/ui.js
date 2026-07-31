@@ -1,6 +1,5 @@
-// HUD, notificaciones, números de daño flotantes, cooldowns, victoria, ajustes y confirmaciones.
-// La sección de Ajustes/Confirmación se inicializa en DOMContentLoaded porque se usa
-// también ANTES de que arranque la partida (desde el menú principal).
+// HUD, notificaciones, números de daño flotantes, cooldowns, victoria, ajustes, confirmaciones
+// y el overlay de Progreso (pestañas: misiones/logros/bestiario/stats).
 
 let _hp, _xp, _stamina, _level, _zoneName, _notifContainer, _fatigueIndicator, _damageNumberContainer;
 let _confirmCallback = null;
@@ -56,6 +55,8 @@ function _refreshSettingsUI() {
 function openSettings() {
   if (typeof closeInventory === 'function') closeInventory();
   if (typeof closeCrafting === 'function') closeCrafting();
+  if (typeof closeProgress === 'function') closeProgress();
+  if (typeof closeShop === 'function') closeShop();
   if (_gameInitialized) game.refs.uiState.modalOpen = true;
   _refreshSettingsUI();
   document.getElementById('settings-overlay').classList.remove('hidden');
@@ -64,6 +65,29 @@ function openSettings() {
 function closeSettings() {
   document.getElementById('settings-overlay').classList.add('hidden');
   if (_gameInitialized) game.refs.uiState.modalOpen = false;
+}
+
+function openProgress() {
+  if (typeof closeInventory === 'function') closeInventory();
+  if (typeof closeCrafting === 'function') closeCrafting();
+  if (typeof closeSettings === 'function') closeSettings();
+  if (typeof closeShop === 'function') closeShop();
+  game.refs.uiState.modalOpen = true;
+  document.getElementById('progress-overlay').classList.remove('hidden');
+  refreshQuestUI();
+  refreshAchievementsUI();
+  refreshBestiaryUI();
+  refreshStatsUI();
+}
+
+function closeProgress() {
+  game.refs.uiState.modalOpen = false;
+  document.getElementById('progress-overlay').classList.add('hidden');
+}
+
+function _switchProgressTab(tabName) {
+  document.querySelectorAll('.progress-tab-btn').forEach((btn) => btn.classList.toggle('active', btn.dataset.tab === tabName));
+  document.querySelectorAll('.progress-tab-content').forEach((content) => content.classList.toggle('hidden', content.id !== `progress-tab-${tabName}`));
 }
 
 function initUI() {
@@ -75,6 +99,12 @@ function initUI() {
   _notifContainer = document.getElementById('notification-container');
   _fatigueIndicator = document.getElementById('fatigue-indicator');
   _damageNumberContainer = document.getElementById('damage-number-container');
+
+  document.getElementById('progress-toggle-btn').addEventListener('touchstart', (e) => { e.preventDefault(); openProgress(); }, { passive: false });
+  document.getElementById('progress-close-btn').addEventListener('click', closeProgress);
+  document.querySelectorAll('.progress-tab-btn').forEach((btn) => {
+    btn.addEventListener('click', () => _switchProgressTab(btn.dataset.tab));
+  });
 
   game.registerSystem(updateHUD);
 }
